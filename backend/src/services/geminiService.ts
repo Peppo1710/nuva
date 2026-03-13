@@ -55,7 +55,7 @@ function buildSystemPrompt(ctx: UserContext): string {
       ? ctx.medications.map((m) => `${m.name} (${m.dosage || "unknown dose"}, ${m.frequency || "unknown frequency"})`).join(", ")
       : "None recorded";
 
-  return `You are MediAssist, a friendly health companion for elderly patients.
+  return `You are Nuva, a friendly health companion for elderly patients.
 Always respond in simple, clear language. No medical jargon.
 User profile: Name=${ctx.username || "Unknown"}, Age=${ctx.age || "Unknown"}, Blood Group=${ctx.blood_group || "Unknown"}.
 Known conditions: ${ctx.conditions.length > 0 ? ctx.conditions.join(", ") : "None recorded"}.
@@ -87,7 +87,7 @@ export async function chatWithGemini(
   const contents: Content[] = [];
 
   contents.push({ role: "user", parts: [{ text: systemPrompt }] });
-  contents.push({ role: "model", parts: [{ text: "Understood. I'm MediAssist, ready to help!" }] });
+  contents.push({ role: "model", parts: [{ text: "Understood. I'm Nuva, ready to help!" }] });
 
   for (const msg of history.slice(-20)) {
     contents.push({

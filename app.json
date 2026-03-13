@@ -1,23 +1,23 @@
 {
   "expo": {
-    "name": "MediAssist",
-    "slug": "mediassist",
+    "name": "Nuva",
+    "slug": "nuva",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mediassist",
-    "userInterfaceStyle": "automatic",
+    "scheme": "nuva",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2563EB"
+      "backgroundColor": "#0F172A"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mediassist.app",
+      "bundleIdentifier": "com.nuva.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "MediAssist needs camera access to scan your prescriptions.",
-        "NSPhotoLibraryUsageDescription": "MediAssist needs photo access to upload prescription images."
+        "NSCameraUsageDescription": "Nuva needs camera access to scan your prescriptions.",
+        "NSPhotoLibraryUsageDescription": "Nuva needs photo access to upload prescription images."
       }
     },
     "android": {
@@ -28,12 +28,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "usesCleartextTraffic": true,
-      "package": "com.mediassist.app",
+      "package": "com.nuva.app",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.SCHEDULE_EXACT_ALARM",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -53,13 +54,22 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "MediAssist needs access to your photos to upload prescription images.",
-          "cameraPermission": "MediAssist needs camera access to scan prescriptions."
+          "photosPermission": "Nuva needs access to your photos to upload prescription images.",
+          "cameraPermission": "Nuva needs camera access to scan prescriptions."
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "09340ec3-c54f-4bf5-b68f-c17815ae203f"
+      }
+    },
+    "owner": "pradyumn1710s-organization"
   }
 }

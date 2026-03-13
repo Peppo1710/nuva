@@ -15,7 +15,7 @@ const getBaseUrl = () => {
 };
 
 const BASE_URL = getBaseUrl();
-console.log(`[MediAssist API] Platform=${Platform.OS} baseURL=${BASE_URL}`);
+console.log(`[Nuva API] Platform=${Platform.OS} baseURL=${BASE_URL}`);
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -41,7 +41,7 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
-    console.log(`[MediAssist API] ERROR: ${error.message} | code=${error.code} | url=${error.config?.baseURL}${error.config?.url} | status=${error.response?.status ?? "none"}`);
+    console.log(`[Nuva API] ERROR: ${error.message} | code=${error.code} | url=${error.config?.baseURL}${error.config?.url} | status=${error.response?.status ?? "none"}`);
 
     if (!error.response) {
       const isNetworkError =
@@ -50,18 +50,18 @@ api.interceptors.response.use(
         error.code === "NETWORK_ERROR" ||
         error.message === "Network Error";
 
-      // If the backend is simply down/unreachable on emulator, don't show offline banner
-      // The backend might be down but the device still has internet
-      // Only show banner if the error looks like a genuine connectivity loss
-      if (
-        isNetworkError &&
-        error.config?.baseURL?.includes("localhost") === false &&
-        error.config?.baseURL?.includes("10.0.2.2") === false
-      ) {
+      const base = error.config?.baseURL || "";
+      const isLocalDev =
+        base.includes("localhost") ||
+        base.includes("10.0.2.2") ||
+        base.includes("127.0.0.1") ||
+        /192\.168\.\d+\.\d+/.test(base) ||
+        /10\.\d+\.\d+\.\d+/.test(base) ||
+        /172\.(1[6-9]|2\d|3[01])\.\d+\.\d+/.test(base);
+
+      if (isNetworkError && !isLocalDev) {
         useUIStore.getState().setOffline(true);
       }
-      // For localhost/10.0.2.2 (dev), never show the offline banner
-      // since it just means the dev server is not running
     } else {
       // We got a response (4xx, 5xx), so definitely not offline
       useUIStore.getState().setOffline(false);

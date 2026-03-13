@@ -32,7 +32,7 @@ export default function WelcomeScreen() {
           </View>
 
           <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-            MediAssist
+            Nuva
           </Text>
 
           <Text

@@ -26,6 +26,6 @@ export async function authenticate(
 ): Promise<void> {
   const userId = (req.headers["x-user-id"] as string) || DEV_USER_UUID;
   req.userId = userId;
-  req.userEmail = `dev@mediassist.local`;
+  req.userEmail = `dev@nuva.local`;
   next();
 }

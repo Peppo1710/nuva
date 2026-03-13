@@ -61,10 +61,10 @@ export default function PhoneScreen() {
           <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 64, paddingBottom: 32, justifyContent: "space-between" }}>
             <View>
               <Text style={{ fontSize: 32, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
-                MediAssist
+                Nuva
               </Text>
               <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 48 }}>
-                Your medication companion
+                Your health companion
               </Text>
 
               <NeoCard style={{ marginBottom: 32 }}>

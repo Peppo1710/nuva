@@ -566,7 +566,7 @@ export default function HomeScreen() {
       <ConfirmDialog
         visible={showSignOutConfirm}
         title="Sign Out"
-        message="Are you sure you want to sign out of MediAssist?"
+        message="Are you sure you want to sign out of Nuva?"
         confirmText="Sign Out"
         cancelText="Stay"
         onConfirm={() => {

@@ -42,12 +42,19 @@ app.use((req, res, next) => {
 });
 
 app.get("/health", (_req, res) => {
+  const mem = process.memoryUsage();
   res.status(200).json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    service: "mediassist-api",
+    service: "nuva-api",
     version: "1.0.0",
     environment: process.env.NODE_ENV || "development",
+    uptime_seconds: Math.floor(process.uptime()),
+    memory_mb: {
+      rss: Math.round(mem.rss / 1024 / 1024),
+      heap_used: Math.round(mem.heapUsed / 1024 / 1024),
+      heap_total: Math.round(mem.heapTotal / 1024 / 1024),
+    },
   });
 });
 
@@ -73,7 +80,7 @@ app.use(
 );
 
 app.listen(Number(PORT), "0.0.0.0", async () => {
-  console.log(`MediAssist API running on http://0.0.0.0:${PORT}`);
+  console.log(`Nuva API running on http://0.0.0.0:${PORT}`);
   await runStartupChecks();
 });
 
