@@ -1,57 +1,127 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import "../global.css";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View, Text } from "react-native";
+import { Slot, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "nativewind";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuthStore } from "@/store/authStore";
+import { useProfileStore } from "@/store/profileStore";
+import { NetworkBanner } from "@/components/ui/NetworkBanner";
+import { playNotificationSound, cleanupSound } from "@/lib/notificationSound";
 
-import { useColorScheme } from '@/components/useColorScheme';
+export { ErrorBoundary } from "expo-router";
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const { colorScheme, setColorScheme } = useColorScheme();
+  const themePreference = useProfileStore((s) => s.theme_preference);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    const loadTheme = async () => {
+      try {
+        const saved = await AsyncStorage.getItem("theme_preference");
+        if (saved === "dark" || saved === "light") {
+          setColorScheme(saved);
+        }
+      } catch {}
+    };
+    loadTheme();
+  }, []);
+
+  useEffect(() => {
+    if (themePreference === "dark" || themePreference === "light") {
+      setColorScheme(themePreference);
     }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  }, [themePreference, setColorScheme]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+    <>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      {children}
+    </>
+  );
+}
+
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { session, initialized } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (!initialized) return;
+
+    const checkAndRoute = async () => {
+      const inOnboarding = segments[0] === "onboarding";
+
+      if (!session && !inOnboarding) {
+        router.replace("/onboarding/phone");
+      } else if (session) {
+        const isOnboarded = await useProfileStore
+          .getState()
+          .checkOnboardingStatus();
+
+        if (!isOnboarded && !inOnboarding) {
+          router.replace("/onboarding/welcome");
+        } else if (isOnboarded && inOnboarding) {
+          router.replace("/(tabs)/home");
+        }
+      }
+
+      setIsReady(true);
+    };
+
+    checkAndRoute();
+  }, [session, initialized, segments]);
+
+  return (
+    <>
+      {children}
+      {(!initialized || !isReady) && (
+        <View
+          className="absolute inset-0 items-center justify-center bg-white dark:bg-background-dark"
+          style={{ zIndex: 100 }}
+        >
+          <ActivityIndicator size="large" color="#2563EB" />
+          <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-4">
+            Loading...
+          </Text>
+        </View>
+      )}
+    </>
+  );
+}
+
+export default function RootLayout() {
+  const initialize = useAuthStore((s) => s.initialize);
+
+  useEffect(() => {
+    initialize().then(() => {
+      SplashScreen.hideAsync();
+    });
+  }, []);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(() => {
+      playNotificationSound();
+    });
+
+    return () => {
+      subscription.remove();
+      cleanupSound();
+    };
+  }, []);
+
+  return (
+    <ThemeProvider>
+      <NetworkBanner />
+      <AuthGuard>
+        <Slot />
+      </AuthGuard>
     </ThemeProvider>
   );
 }
