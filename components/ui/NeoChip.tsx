@@ -1,5 +1,8 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
+import { useColorScheme } from "nativewind";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 interface NeoChipProps {
   label: string;
@@ -14,25 +17,57 @@ export const NeoChip = React.memo(function NeoChip({
   variant = "default",
   className = "",
 }: NeoChipProps) {
-  const bgColor =
-    variant === "primary"
-      ? "bg-primary/10 dark:bg-primary/20"
-      : "bg-surface dark:bg-surface-dark";
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
 
   return (
     <View
-      className={`flex-row items-center px-4 py-2 rounded-full border-[1px] border-gray-200 dark:border-gray-700 mr-2 mb-2 ${bgColor} ${className}`}
+      className={className}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: R.pill,
+        borderWidth: 0.5,
+        borderColor: c.border,
+        backgroundColor: variant === "primary"
+          ? (colorScheme === "dark" ? "rgba(58,81,160,0.15)" : "rgba(26,39,68,0.06)")
+          : c.surface,
+        marginRight: 8,
+        marginBottom: 8,
+      }}
     >
-      <Text className="text-[18px] font-medium text-navy dark:text-navy-dark">
+      <Text
+        style={{
+          fontSize: Typography.base,
+          fontWeight: "500",
+          color: c.textPrimary,
+        }}
+      >
         {label}
       </Text>
       {onRemove && (
         <Pressable
           onPress={onRemove}
-          className="ml-2 min-w-[32px] min-h-[32px] items-center justify-center"
+          style={{
+            marginLeft: 8,
+            minWidth: 28,
+            minHeight: 28,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           hitSlop={8}
         >
-          <Text className="text-[18px] font-bold text-error">✕</Text>
+          <Text
+            style={{
+              fontSize: Typography.base,
+              fontWeight: "700",
+              color: c.danger,
+            }}
+          >
+            ✕
+          </Text>
         </Pressable>
       )}
     </View>

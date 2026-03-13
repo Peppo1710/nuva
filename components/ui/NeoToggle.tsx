@@ -1,5 +1,8 @@
 import React, { useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
+import { useColorScheme } from "nativewind";
+import { Colors } from "@/constants/colors";
+import { Typography } from "@/constants/typography";
 
 interface NeoToggleProps {
   value: boolean;
@@ -18,24 +21,35 @@ export const NeoToggle = React.memo(function NeoToggle({
   rightLabel,
   disabled = false,
 }: NeoToggleProps) {
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+
   const toggle = useCallback(() => {
     if (!disabled) onValueChange(!value);
   }, [value, disabled, onValueChange]);
 
   return (
-    <View className="flex-row items-center">
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
       {label && (
-        <Text className="text-[18px] font-semibold text-navy dark:text-navy-dark mr-4">
+        <Text
+          style={{
+            fontSize: Typography.base,
+            fontWeight: "600",
+            color: c.textPrimary,
+            marginRight: 16,
+          }}
+        >
           {label}
         </Text>
       )}
       {leftLabel && (
         <Text
-          className={`text-[18px] mr-3 ${
-            !value
-              ? "font-bold text-navy dark:text-navy-dark"
-              : "text-gray-400"
-          }`}
+          style={{
+            fontSize: Typography.base,
+            marginRight: 12,
+            fontWeight: !value ? "700" : "400",
+            color: !value ? c.textPrimary : c.textMuted,
+          }}
         >
           {leftLabel}
         </Text>
@@ -43,23 +57,34 @@ export const NeoToggle = React.memo(function NeoToggle({
       <Pressable
         onPress={toggle}
         disabled={disabled}
-        className={`w-[60px] h-[34px] rounded-full justify-center px-1 ${
-          value ? "bg-primary" : "bg-gray-300 dark:bg-gray-600"
-        } ${disabled ? "opacity-50" : ""}`}
+        style={{
+          width: 52,
+          height: 30,
+          borderRadius: 999,
+          justifyContent: "center",
+          paddingHorizontal: 3,
+          backgroundColor: value ? c.teal : c.border,
+          opacity: disabled ? 0.5 : 1,
+        }}
       >
         <View
-          className={`w-[26px] h-[26px] bg-white rounded-full shadow-sm ${
-            value ? "self-end" : "self-start"
-          }`}
+          style={{
+            width: 24,
+            height: 24,
+            backgroundColor: "#FFFFFF",
+            borderRadius: 12,
+            alignSelf: value ? "flex-end" : "flex-start",
+          }}
         />
       </Pressable>
       {rightLabel && (
         <Text
-          className={`text-[18px] ml-3 ${
-            value
-              ? "font-bold text-navy dark:text-navy-dark"
-              : "text-gray-400"
-          }`}
+          style={{
+            fontSize: Typography.base,
+            marginLeft: 12,
+            fontWeight: value ? "700" : "400",
+            color: value ? c.textPrimary : c.textMuted,
+          }}
         >
           {rightLabel}
         </Text>

@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { useProfileStore, UserProfile } from "@/store/profileStore";
 import { useAuthStore } from "@/store/authStore";
 import { NeoCard } from "@/components/ui/NeoCard";
@@ -16,6 +17,8 @@ import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
 import { NeoDropdown } from "@/components/ui/NeoDropdown";
 import { NeoToggle } from "@/components/ui/NeoToggle";
+import { Colors } from "@/constants/colors";
+import { Typography, S, R } from "@/constants/typography";
 
 const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
 const BLOOD_GROUP_OPTIONS = [
@@ -32,9 +35,11 @@ const BLOOD_GROUP_OPTIONS = [
 function Avatar({
   username,
   onPress,
+  colors,
 }: {
   username: string | null;
   onPress?: () => void;
+  colors: typeof Colors.light;
 }) {
   const initials = username
     ? username
@@ -48,14 +53,30 @@ function Avatar({
   return (
     <Pressable
       onPress={onPress}
-      className="w-[120px] h-[120px] rounded-full border-[1px] border-gray-200 dark:border-gray-800 bg-primary items-center justify-center self-center shadow-soft"
+      style={{
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        borderWidth: 0.5,
+        borderColor: colors.border,
+        backgroundColor: colors.navy,
+        alignItems: "center",
+        justifyContent: "center",
+        alignSelf: "center",
+      }}
     >
-      <Text className="text-[40px] font-bold text-white">{initials}</Text>
+      <Text style={{ fontSize: 40, fontWeight: "700", color: "#FFFFFF" }}>
+        {initials}
+      </Text>
     </Pressable>
   );
 }
 
 export default function ProfileScreen() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
+
   const {
     username,
     age,
@@ -130,9 +151,9 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-background-dark items-center justify-center">
-        <ActivityIndicator size="large" color="#2563EB" />
-        <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-4">
+      <SafeAreaView style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={c.navy} />
+        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
           Loading your profile...
         </Text>
       </SafeAreaView>
@@ -140,56 +161,91 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ padding: S.xl, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-[28px] font-bold text-navy dark:text-navy-dark">
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
               Profile
             </Text>
             {!editing && (
               <Pressable
                 onPress={startEditing}
-                className="min-h-[44px] min-w-[100px] rounded-full border-[1px] border-primary dark:border-primary-dark bg-primary/10 items-center justify-center px-4"
+                style={{
+                  minHeight: 44,
+                  minWidth: 100,
+                  borderRadius: R.pill,
+                  borderWidth: 1.5,
+                  borderColor: c.navy,
+                  backgroundColor: "transparent",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 16,
+                }}
               >
-                <Text className="text-[16px] font-bold text-primary dark:text-primary-dark">
+                <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: c.navy }}>
                   Edit
                 </Text>
               </Pressable>
             )}
           </View>
 
-          <Avatar username={username} />
-          <Text className="text-[20px] font-bold text-navy dark:text-navy-dark text-center mt-3 mb-1">
+          <Avatar username={username} colors={c} />
+          <Text
+            style={{
+              fontSize: Typography.md,
+              fontWeight: "700",
+              color: c.textPrimary,
+              textAlign: "center",
+              marginTop: 12,
+              marginBottom: 4,
+            }}
+          >
             {username || "Your Name"}
           </Text>
-          <Text className="text-[18px] text-gray-500 dark:text-gray-400 text-center mb-6">
+          <Text
+            style={{
+              fontSize: Typography.base,
+              color: c.textSecondary,
+              textAlign: "center",
+              marginBottom: 24,
+            }}
+          >
             {authUser?.phone || phone || ""}
           </Text>
 
           {saveError && (
-            <View className="mb-4 p-4 border-2 border-error bg-error/10">
-              <Text className="text-[18px] text-error font-medium">
+            <View
+              style={{
+                marginBottom: 16,
+                padding: S.base,
+                borderWidth: 0.5,
+                borderColor: c.danger,
+                borderRadius: R.md,
+                backgroundColor: isDark ? "rgba(240,149,149,0.08)" : "rgba(226,75,74,0.06)",
+              }}
+            >
+              <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500" }}>
                 {saveError}
               </Text>
             </View>
           )}
 
-          <NeoCard className="mb-6">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark mb-4">
+          <NeoCard style={{ marginBottom: 24 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 16 }}>
               Personal Information
             </Text>
 
             {editing ? (
-              <View className="gap-4">
+              <View style={{ gap: 16 }}>
                 <NeoInput
                   label="Full Name"
                   value={form.username || ""}
@@ -248,36 +304,56 @@ export default function ProfileScreen() {
                 />
               </View>
             ) : (
-              <View className="gap-3">
-                <ProfileField label="Full Name" value={username} />
-                <ProfileField label="Age" value={age?.toString()} />
-                <ProfileField label="Gender" value={gender} />
-                <ProfileField label="Blood Group" value={blood_group} />
+              <View style={{ gap: 12 }}>
+                <ProfileField label="Full Name" value={username} colors={c} />
+                <ProfileField label="Age" value={age?.toString()} colors={c} />
+                <ProfileField label="Gender" value={gender} colors={c} />
+                <ProfileField label="Blood Group" value={blood_group} colors={c} />
                 <ProfileField
                   label="Weight"
                   value={weight_kg ? `${weight_kg} kg` : null}
+                  colors={c}
                 />
                 <ProfileField
                   label="Height"
                   value={height_cm ? `${height_cm} cm` : null}
+                  colors={c}
                 />
               </View>
             )}
           </NeoCard>
 
-          <NeoCard className="mb-6">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark mb-4">
+          <NeoCard style={{ marginBottom: 24 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 16 }}>
               Contact Information
             </Text>
 
             {editing ? (
-              <View className="gap-4">
+              <View style={{ gap: 16 }}>
                 <View>
-                  <Text className="text-[18px] font-semibold text-navy dark:text-navy-dark mb-2">
+                  <Text
+                    style={{
+                      fontSize: Typography.base,
+                      fontWeight: "600",
+                      color: c.textPrimary,
+                      marginBottom: 8,
+                    }}
+                  >
                     Phone Number
                   </Text>
-                  <View className="min-h-[56px] w-full px-4 justify-center border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800">
-                    <Text className="text-[18px] text-gray-500 dark:text-gray-400">
+                  <View
+                    style={{
+                      minHeight: 56,
+                      width: "100%",
+                      paddingHorizontal: 16,
+                      justifyContent: "center",
+                      borderWidth: 1,
+                      borderColor: c.border,
+                      borderRadius: R.md,
+                      backgroundColor: isDark ? Colors.dark.surface : "#F7F8FA",
+                    }}
+                  >
+                    <Text style={{ fontSize: Typography.base, color: c.textMuted }}>
                       {authUser?.phone || phone || "Not set"}
                     </Text>
                   </View>
@@ -307,30 +383,33 @@ export default function ProfileScreen() {
                 />
               </View>
             ) : (
-              <View className="gap-3">
+              <View style={{ gap: 12 }}>
                 <ProfileField
                   label="Phone Number"
                   value={authUser?.phone || phone}
+                  colors={c}
                 />
                 <ProfileField
                   label="Emergency Contact"
                   value={emergency_contact_name}
+                  colors={c}
                 />
                 <ProfileField
                   label="Emergency Phone"
                   value={emergency_contact_phone}
+                  colors={c}
                 />
-                <ProfileField label="City" value={city} />
+                <ProfileField label="City" value={city} colors={c} />
               </View>
             )}
           </NeoCard>
 
-          <NeoCard className="mb-6">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark mb-4">
+          <NeoCard style={{ marginBottom: 24 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 16 }}>
               App Preferences
             </Text>
-            <View className="flex-row items-center justify-between min-h-[56px]">
-              <Text className="text-[18px] text-navy dark:text-navy-dark">
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 56 }}>
+              <Text style={{ fontSize: Typography.base, color: c.textPrimary }}>
                 Theme
               </Text>
               <NeoToggle
@@ -343,7 +422,7 @@ export default function ProfileScreen() {
           </NeoCard>
 
           {editing && (
-            <View className="gap-3 mb-4">
+            <View style={{ gap: 12, marginBottom: 16 }}>
               <NeoButton
                 title={saving ? "Saving..." : "Save Changes"}
                 onPress={handleSave}
@@ -369,16 +448,18 @@ export default function ProfileScreen() {
 function ProfileField({
   label,
   value,
+  colors,
 }: {
   label: string;
   value: string | null | undefined;
+  colors: typeof Colors.light;
 }) {
   return (
-    <View className="flex-row justify-between items-center min-h-[44px]">
-      <Text className="text-[18px] text-gray-500 dark:text-gray-400 flex-1">
+    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", minHeight: 44 }}>
+      <Text style={{ fontSize: Typography.base, color: colors.textSecondary, flex: 1 }}>
         {label}
       </Text>
-      <Text className="text-[18px] font-medium text-navy dark:text-navy-dark flex-1 text-right">
+      <Text style={{ fontSize: Typography.base, fontWeight: "500", color: colors.textPrimary, flex: 1, textAlign: "right" }}>
         {value || "Not set"}
       </Text>
     </View>

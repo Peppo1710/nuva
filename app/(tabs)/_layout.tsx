@@ -1,24 +1,63 @@
+import { useRef, useEffect } from "react";
 import { Tabs } from "expo-router";
-import { View } from "react-native";
+import { View, Animated } from "react-native";
 import { useColorScheme } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function TabIcon({
   icon,
   focused,
-  color,
+  activeColor,
+  inactiveColor,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   focused: boolean;
-  color: string;
+  activeColor: string;
+  inactiveColor: string;
 }) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const dotScale = useRef(new Animated.Value(focused ? 1 : 0)).current;
+
+  useEffect(() => {
+    if (focused) {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        stiffness: 300,
+        damping: 14,
+        useNativeDriver: true,
+      }).start();
+      Animated.spring(dotScale, {
+        toValue: 1,
+        stiffness: 300,
+        damping: 14,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      dotScale.setValue(0);
+    }
+  }, [focused]);
+
   return (
-    <View
-      className={`items-center justify-center w-full h-full ${
-        focused ? "border-t-[3px] border-primary" : "border-t-[3px] border-transparent"
-      }`}
-    >
-      <Ionicons name={icon} size={24} color={color} />
+    <View style={{ alignItems: "center", justifyContent: "center", paddingTop: 6 }}>
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Ionicons
+          name={icon}
+          size={24}
+          color={focused ? activeColor : inactiveColor}
+        />
+      </Animated.View>
+      <Animated.View
+        style={{
+          width: 4,
+          height: 4,
+          borderRadius: 2,
+          backgroundColor: activeColor,
+          marginTop: 4,
+          transform: [{ scale: dotScale }],
+        }}
+      />
     </View>
   );
 }
@@ -26,6 +65,10 @@ function TabIcon({
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
+  const insets = useSafeAreaInsets();
+  const activeColor = isDark ? c.violet : c.navy;
+  const inactiveColor = c.textMuted;
 
   return (
     <Tabs
@@ -33,20 +76,20 @@ export default function TabLayout() {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
-          marginBottom: 4,
+          fontSize: 10,
+          fontWeight: "500",
+          marginBottom: 2,
         },
-        tabBarActiveTintColor: "#0F766E",
-        tabBarInactiveTintColor: isDark ? "#A1A1AA" : "#9CA3AF",
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          height: 72,
-          borderTopWidth: 1,
-          borderTopColor: isDark ? "#1F2937" : "#E5E7EB",
-          backgroundColor: isDark ? "#121212" : "#FFFFFF",
+          height: 60 + insets.bottom,
+          borderTopWidth: 0.5,
+          borderTopColor: c.border,
+          backgroundColor: c.surface,
           elevation: 0,
           shadowOpacity: 0,
-          paddingTop: 4,
+          paddingTop: 2,
         },
       }}
     >
@@ -54,8 +97,13 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={focused ? "home" : "home-outline"} focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              icon={focused ? "home" : "home-outline"}
+              focused={focused}
+              activeColor={activeColor}
+              inactiveColor={inactiveColor}
+            />
           ),
         }}
       />
@@ -63,8 +111,13 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={focused ? "person" : "person-outline"} focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              icon={focused ? "person" : "person-outline"}
+              focused={focused}
+              activeColor={activeColor}
+              inactiveColor={inactiveColor}
+            />
           ),
         }}
       />
@@ -72,8 +125,13 @@ export default function TabLayout() {
         name="medical"
         options={{
           title: "Medical",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={focused ? "medkit" : "medkit-outline"} focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              icon={focused ? "medkit" : "medkit-outline"}
+              focused={focused}
+              activeColor={activeColor}
+              inactiveColor={inactiveColor}
+            />
           ),
         }}
       />
@@ -81,8 +139,13 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: "AI Chat",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={focused ? "chatbubble" : "chatbubble-outline"} focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              icon={focused ? "chatbubble" : "chatbubble-outline"}
+              focused={focused}
+              activeColor={activeColor}
+              inactiveColor={inactiveColor}
+            />
           ),
         }}
       />
@@ -90,8 +153,13 @@ export default function TabLayout() {
         name="reminders"
         options={{
           title: "Reminders",
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={focused ? "alarm" : "alarm-outline"} focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              icon={focused ? "alarm" : "alarm-outline"}
+              focused={focused}
+              activeColor={activeColor}
+              inactiveColor={inactiveColor}
+            />
           ),
         }}
       />

@@ -10,14 +10,21 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { useMedicalStore, Surgery, Medication } from "@/store/medicalStore";
 import { NeoCard } from "@/components/ui/NeoCard";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
 import { NeoChip } from "@/components/ui/NeoChip";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Colors } from "@/constants/colors";
+import { Typography, S, R } from "@/constants/typography";
 
 export default function MedicalScreen() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
+
   const {
     conditions,
     allergies,
@@ -210,9 +217,9 @@ export default function MedicalScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-background-dark items-center justify-center">
-        <ActivityIndicator size="large" color="#2563EB" />
-        <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-4">
+      <SafeAreaView style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={c.navy} />
+        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
           Loading medical history...
         </Text>
       </SafeAreaView>
@@ -220,54 +227,65 @@ export default function MedicalScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: S.xl, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-[28px] font-bold text-navy dark:text-navy-dark mb-6">
+        <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 24 }}>
           Medical History
         </Text>
 
         {error && (
-          <View className="mb-4 p-4 border-2 border-error bg-error/10">
-            <Text className="text-[18px] text-error font-medium">{error}</Text>
+          <View
+            style={{
+              marginBottom: 16,
+              padding: S.base,
+              borderWidth: 0.5,
+              borderColor: c.danger,
+              borderRadius: R.md,
+              backgroundColor: isDark ? "rgba(240,149,149,0.08)" : "rgba(226,75,74,0.06)",
+            }}
+          >
+            <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500" }}>
+              {error}
+            </Text>
             <Pressable
               onPress={() => setError(null)}
-              className="mt-2 min-h-[44px] justify-center"
+              style={{ marginTop: 8, minHeight: 44, justifyContent: "center" }}
             >
-              <Text className="text-[18px] font-bold text-error underline">
+              <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.danger, textDecorationLine: "underline" }}>
                 Dismiss
               </Text>
             </Pressable>
           </View>
         )}
 
-        <NeoCard className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark">
+        <NeoCard style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
               Current Conditions
             </Text>
           </View>
           {conditions.length === 0 ? (
-            <Text className="text-[18px] text-gray-400 dark:text-gray-500 mb-3">
+            <Text style={{ fontSize: Typography.base, color: c.textMuted, marginBottom: 12 }}>
               Tap + to add your conditions
             </Text>
           ) : (
-            <View className="flex-row flex-wrap mb-3">
-              {conditions.map((c) => (
+            <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 12 }}>
+              {conditions.map((cond) => (
                 <NeoChip
-                  key={c}
-                  label={c}
+                  key={cond}
+                  label={cond}
                   variant="primary"
-                  onRemove={() => setRemovingCondition(c)}
+                  onRemove={() => setRemovingCondition(cond)}
                 />
               ))}
             </View>
           )}
-          <View className="flex-row items-center gap-2">
-            <View className="flex-1">
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View style={{ flex: 1 }}>
               <NeoInput
                 value={conditionInput}
                 onChangeText={setConditionInput}
@@ -278,61 +296,80 @@ export default function MedicalScreen() {
             </View>
             <Pressable
               onPress={handleAddCondition}
-              className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-primary bg-primary/10 items-center justify-center"
+              style={{
+                minWidth: 56,
+                minHeight: 56,
+                borderRadius: R.md,
+                borderWidth: 0.5,
+                borderColor: c.navy,
+                backgroundColor: isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <Text className="text-[28px] font-bold text-primary">+</Text>
+              <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.navy }}>+</Text>
             </Pressable>
           </View>
         </NeoCard>
 
-        <NeoCard className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark">
+        <NeoCard style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
               Ongoing Medications
             </Text>
             <Pressable
               onPress={() => setShowMedForm(true)}
-              className="min-h-[44px] rounded-full border-[1px] border-primary bg-primary/10 items-center justify-center px-4"
+              style={{
+                minHeight: 44,
+                borderRadius: R.pill,
+                borderWidth: 1.5,
+                borderColor: c.navy,
+                backgroundColor: "transparent",
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: 16,
+              }}
             >
-              <Text className="text-[16px] font-bold text-primary">+ Add</Text>
+              <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: c.navy }}>+ Add</Text>
             </Pressable>
           </View>
           {medicationsLoading ? (
-            <View className="items-center py-4">
-              <ActivityIndicator size="small" color="#2563EB" />
-              <Text className="text-[18px] text-gray-400 mt-2">
+            <View style={{ alignItems: "center", paddingVertical: 16 }}>
+              <ActivityIndicator size="small" color={c.navy} />
+              <Text style={{ fontSize: Typography.base, color: c.textMuted, marginTop: 8 }}>
                 Loading medications...
               </Text>
             </View>
           ) : medications.length === 0 ? (
-            <Text className="text-[18px] text-gray-400 dark:text-gray-500">
+            <Text style={{ fontSize: Typography.base, color: c.textMuted }}>
               Tap + Add to add your medications
             </Text>
           ) : (
-            <View className="gap-3">
+            <View style={{ gap: 12 }}>
               {medications.map((med) => (
-                <MedicationItem
+                <MedicationItemView
                   key={med.id}
                   medication={med}
                   onDelete={() => setDeletingMed(med)}
+                  colors={c}
                 />
               ))}
             </View>
           )}
         </NeoCard>
 
-        <NeoCard className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark">
+        <NeoCard style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
               Allergies
             </Text>
           </View>
           {allergies.length === 0 ? (
-            <Text className="text-[18px] text-gray-400 dark:text-gray-500 mb-3">
+            <Text style={{ fontSize: Typography.base, color: c.textMuted, marginBottom: 12 }}>
               Tap + to add your allergies
             </Text>
           ) : (
-            <View className="flex-row flex-wrap mb-3">
+            <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 12 }}>
               {allergies.map((a) => (
                 <NeoChip
                   key={a}
@@ -342,8 +379,8 @@ export default function MedicalScreen() {
               ))}
             </View>
           )}
-          <View className="flex-row items-center gap-2">
-            <View className="flex-1">
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View style={{ flex: 1 }}>
               <NeoInput
                 value={allergyInput}
                 onChangeText={setAllergyInput}
@@ -354,50 +391,76 @@ export default function MedicalScreen() {
             </View>
             <Pressable
               onPress={handleAddAllergy}
-              className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-primary bg-primary/10 items-center justify-center"
+              style={{
+                minWidth: 56,
+                minHeight: 56,
+                borderRadius: R.md,
+                borderWidth: 0.5,
+                borderColor: c.navy,
+                backgroundColor: isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <Text className="text-[28px] font-bold text-primary">+</Text>
+              <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.navy }}>+</Text>
             </Pressable>
           </View>
         </NeoCard>
 
-        <NeoCard className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark">
+        <NeoCard style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
               Past Surgeries
             </Text>
             <Pressable
               onPress={() => setShowSurgeryForm(true)}
-              className="min-h-[44px] rounded-full border-[1px] border-primary bg-primary/10 items-center justify-center px-4"
+              style={{
+                minHeight: 44,
+                borderRadius: R.pill,
+                borderWidth: 1.5,
+                borderColor: c.navy,
+                backgroundColor: "transparent",
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: 16,
+              }}
             >
-              <Text className="text-[16px] font-bold text-primary">+ Add</Text>
+              <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: c.navy }}>+ Add</Text>
             </Pressable>
           </View>
           {past_surgeries.length === 0 ? (
-            <Text className="text-[18px] text-gray-400 dark:text-gray-500">
+            <Text style={{ fontSize: Typography.base, color: c.textMuted }}>
               Tap + Add to add past surgeries
             </Text>
           ) : (
-            <View className="gap-2">
+            <View style={{ gap: 8 }}>
               {past_surgeries.map((s: Surgery, index: number) => (
                 <View
                   key={`${s.name}-${s.year}-${index}`}
-                  className="flex-row items-center justify-between min-h-[56px] border-b border-gray-200 dark:border-gray-700 pb-2"
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    minHeight: 56,
+                    borderBottomWidth: 0.5,
+                    borderBottomColor: c.border,
+                    paddingBottom: 8,
+                  }}
                 >
-                  <View className="flex-1">
-                    <Text className="text-[18px] font-medium text-navy dark:text-navy-dark">
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: Typography.base, fontWeight: "500", color: c.textPrimary }}>
                       {s.name}
                     </Text>
-                    <Text className="text-[18px] text-gray-500 dark:text-gray-400">
+                    <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>
                       {s.year}
                     </Text>
                   </View>
                   <Pressable
                     onPress={() => setDeletingSurgeryIdx(index)}
-                    className="min-w-[56px] min-h-[56px] items-center justify-center"
+                    style={{ minWidth: 56, minHeight: 56, alignItems: "center", justifyContent: "center" }}
                     hitSlop={8}
                   >
-                    <Text className="text-[18px] font-bold text-error">
+                    <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.danger }}>
                       Delete
                     </Text>
                   </Pressable>
@@ -407,33 +470,42 @@ export default function MedicalScreen() {
           )}
         </NeoCard>
 
-        <NeoCard className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark">
+        <NeoCard style={{ marginBottom: 24 }}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
               Doctor Information
             </Text>
             <Pressable
               onPress={openDoctorEdit}
-              className="min-h-[44px] rounded-full border-[1px] border-primary dark:border-primary-dark bg-primary/10 items-center justify-center px-4"
+              style={{
+                minHeight: 44,
+                borderRadius: R.pill,
+                borderWidth: 1.5,
+                borderColor: c.navy,
+                backgroundColor: "transparent",
+                alignItems: "center",
+                justifyContent: "center",
+                paddingHorizontal: 16,
+              }}
             >
-              <Text className="text-[16px] font-bold text-primary dark:text-primary-dark">Edit</Text>
+              <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: c.navy }}>Edit</Text>
             </Pressable>
           </View>
           {!doctor_name &&
           !doctor_specialty &&
           !doctor_phone &&
           !clinic_name ? (
-            <Text className="text-[18px] text-gray-400 dark:text-gray-500">
+            <Text style={{ fontSize: Typography.base, color: c.textMuted }}>
               Tap Edit to add your doctor's information
             </Text>
           ) : (
-            <View className="gap-2">
-              <DoctorField label="Doctor Name" value={doctor_name} />
-              <DoctorField label="Specialty" value={doctor_specialty} />
-              <DoctorField label="Phone" value={doctor_phone} />
-              <DoctorField label="Clinic" value={clinic_name} />
-              <DoctorField label="Last Visit" value={last_visit_date} />
-              <DoctorField label="Insurance #" value={insurance_number} />
+            <View style={{ gap: 8 }}>
+              <DoctorField label="Doctor Name" value={doctor_name} colors={c} />
+              <DoctorField label="Specialty" value={doctor_specialty} colors={c} />
+              <DoctorField label="Phone" value={doctor_phone} colors={c} />
+              <DoctorField label="Clinic" value={clinic_name} colors={c} />
+              <DoctorField label="Last Visit" value={last_visit_date} colors={c} />
+              <DoctorField label="Insurance #" value={insurance_number} colors={c} />
             </View>
           )}
         </NeoCard>
@@ -443,6 +515,7 @@ export default function MedicalScreen() {
         visible={showMedForm}
         title="Add Medication"
         onClose={() => setShowMedForm(false)}
+        colors={c}
       >
         <NeoInput
           label="Medicine Name"
@@ -471,7 +544,7 @@ export default function MedicalScreen() {
           placeholder="e.g. Take after food"
           containerClassName="mt-4"
         />
-        <View className="mt-6">
+        <View style={{ marginTop: 24 }}>
           <NeoButton title="Add Medication" onPress={handleAddMedication} />
         </View>
       </FormModal>
@@ -480,6 +553,7 @@ export default function MedicalScreen() {
         visible={showSurgeryForm}
         title="Add Surgery"
         onClose={() => setShowSurgeryForm(false)}
+        colors={c}
       >
         <NeoInput
           label="Surgery Name"
@@ -495,7 +569,7 @@ export default function MedicalScreen() {
           keyboardType="number-pad"
           containerClassName="mt-4"
         />
-        <View className="mt-6">
+        <View style={{ marginTop: 24 }}>
           <NeoButton title="Add Surgery" onPress={handleAddSurgery} />
         </View>
       </FormModal>
@@ -504,6 +578,7 @@ export default function MedicalScreen() {
         visible={showDoctorEdit}
         title="Doctor Information"
         onClose={() => setShowDoctorEdit(false)}
+        colors={c}
       >
         <NeoInput
           label="Doctor Name"
@@ -559,7 +634,7 @@ export default function MedicalScreen() {
           placeholder="Optional"
           containerClassName="mt-4"
         />
-        <View className="mt-6 gap-3">
+        <View style={{ marginTop: 24, gap: 12 }}>
           <NeoButton
             title={saving ? "Saving..." : "Save Doctor Info"}
             onPress={handleSaveDoctorInfo}
@@ -615,42 +690,54 @@ export default function MedicalScreen() {
   );
 }
 
-const MedicationItem = React.memo(function MedicationItem({
+const MedicationItemView = React.memo(function MedicationItemView({
   medication,
   onDelete,
+  colors,
 }: {
   medication: Medication;
   onDelete: () => void;
+  colors: typeof Colors.light;
 }) {
   return (
-    <View className="rounded-2xl border-[1px] border-gray-200 dark:border-gray-800 p-4 bg-white dark:bg-surface-dark shadow-sm mt-1 mb-2">
-      <View className="flex-row justify-between items-start">
-        <View className="flex-1 mr-2">
-          <Text className="text-[18px] font-bold text-navy dark:text-navy-dark">
+    <View
+      style={{
+        borderRadius: R.lg,
+        borderWidth: 0.5,
+        borderColor: colors.border,
+        padding: S.base,
+        backgroundColor: colors.surface,
+      }}
+    >
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <View style={{ flex: 1, marginRight: 8 }}>
+          <Text style={{ fontSize: Typography.base, fontWeight: "700", color: colors.textPrimary }}>
             {medication.name}
           </Text>
           {medication.dosage && (
-            <Text className="text-[18px] text-gray-600 dark:text-gray-400 mt-1">
+            <Text style={{ fontSize: Typography.base, color: colors.textSecondary, marginTop: 4 }}>
               {medication.dosage}
             </Text>
           )}
           {medication.frequency && (
-            <Text className="text-[18px] text-gray-600 dark:text-gray-400">
+            <Text style={{ fontSize: Typography.base, color: colors.textSecondary }}>
               {medication.frequency}
             </Text>
           )}
           {medication.instructions && (
-            <Text className="text-[18px] text-gray-500 dark:text-gray-400 italic mt-1">
+            <Text style={{ fontSize: Typography.base, color: colors.textMuted, fontStyle: "italic", marginTop: 4 }}>
               {medication.instructions}
             </Text>
           )}
         </View>
         <Pressable
           onPress={onDelete}
-          className="min-w-[56px] min-h-[56px] items-center justify-center"
+          style={{ minWidth: 56, minHeight: 56, alignItems: "center", justifyContent: "center" }}
           hitSlop={8}
         >
-          <Text className="text-[18px] font-bold text-error">Delete</Text>
+          <Text style={{ fontSize: Typography.base, fontWeight: "700", color: colors.danger }}>
+            Delete
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -660,17 +747,19 @@ const MedicationItem = React.memo(function MedicationItem({
 function DoctorField({
   label,
   value,
+  colors,
 }: {
   label: string;
   value: string | null;
+  colors: typeof Colors.light;
 }) {
   if (!value) return null;
   return (
-    <View className="flex-row justify-between items-center min-h-[44px]">
-      <Text className="text-[18px] text-gray-500 dark:text-gray-400 flex-1">
+    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", minHeight: 44 }}>
+      <Text style={{ fontSize: Typography.base, color: colors.textSecondary, flex: 1 }}>
         {label}
       </Text>
-      <Text className="text-[18px] font-medium text-navy dark:text-navy-dark flex-1 text-right">
+      <Text style={{ fontSize: Typography.base, fontWeight: "500", color: colors.textPrimary, flex: 1, textAlign: "right" }}>
         {value}
       </Text>
     </View>
@@ -682,35 +771,56 @@ function FormModal({
   title,
   onClose,
   children,
+  colors,
 }: {
   visible: boolean;
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  colors: typeof Colors.light;
 }) {
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white dark:bg-surface-dark rounded-t-[32px] max-h-[85%] overflow-hidden shadow-[0_-8px_30px_rgba(0,0,0,0.1)]">
-            <View className="flex-row justify-between items-center px-6 pt-8 pb-4 border-b-[1px] border-gray-200 dark:border-gray-800">
-              <Text className="text-[24px] font-bold text-navy dark:text-navy-dark">
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}>
+          <View
+            style={{
+              backgroundColor: colors.surface,
+              borderTopLeftRadius: 32,
+              borderTopRightRadius: 32,
+              maxHeight: "85%",
+              overflow: "hidden",
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingHorizontal: S.xl,
+                paddingTop: 32,
+                paddingBottom: S.base,
+                borderBottomWidth: 0.5,
+                borderBottomColor: colors.border,
+              }}
+            >
+              <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: colors.textPrimary }}>
                 {title}
               </Text>
               <Pressable
                 onPress={onClose}
-                className="min-w-[56px] min-h-[56px] items-center justify-center"
+                style={{ minWidth: 56, minHeight: 56, alignItems: "center", justifyContent: "center" }}
               >
-                <Text className="text-[24px] font-bold text-gray-500 dark:text-gray-400">
+                <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: colors.textMuted }}>
                   ✕
                 </Text>
               </Pressable>
             </View>
             <ScrollView
-              contentContainerStyle={{ padding: 24 }}
+              contentContainerStyle={{ padding: S.xl }}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
             >

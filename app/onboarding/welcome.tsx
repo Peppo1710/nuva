@@ -1,29 +1,53 @@
 import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { NeoButton } from "@/components/ui/NeoButton";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
-      <View className="flex-1 px-6 justify-center items-center">
-        <View className="items-center mb-16">
-          <View className="mb-8 w-[120px] h-[120px] bg-primary items-center justify-center rounded-[36px] shadow-soft border-[1px] border-gray-100 dark:border-gray-800">
-            <Text className="text-[56px]">💊</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ flex: 1, paddingHorizontal: 24, justifyContent: "center", alignItems: "center" }}>
+        <View style={{ alignItems: "center", marginBottom: 64 }}>
+          <View
+            style={{
+              marginBottom: 32,
+              width: 120,
+              height: 120,
+              backgroundColor: c.navy,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 36,
+              borderWidth: 0.5,
+              borderColor: c.border,
+            }}
+          >
+            <Text style={{ fontSize: 56 }}>💊</Text>
           </View>
 
-          <Text className="text-[36px] font-bold text-navy dark:text-navy-dark mb-3">
+          <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
             MediAssist
           </Text>
 
-          <Text className="text-[20px] text-gray-500 dark:text-gray-400 text-center leading-[28px]">
+          <Text
+            style={{
+              fontSize: Typography.md,
+              color: c.textSecondary,
+              textAlign: "center",
+              lineHeight: 28,
+            }}
+          >
             Your AI-powered medication{"\n"}& health companion
           </Text>
         </View>
 
-        <View className="w-full px-2">
+        <View style={{ width: "100%", paddingHorizontal: 8 }}>
           <NeoButton
             title="Get Started"
             onPress={() => router.push("/onboarding/name")}

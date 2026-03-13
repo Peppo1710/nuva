@@ -8,12 +8,17 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { useAuthStore } from "@/store/authStore";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
 import { NeoCard } from "@/components/ui/NeoCard";
+import { Colors } from "@/constants/colors";
+import { Typography } from "@/constants/typography";
 
 export default function PhoneScreen() {
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const [countryCode, setCountryCode] = useState("+91");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -44,40 +49,40 @@ export default function PhoneScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 px-6 pt-16 pb-8 justify-between">
+          <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 64, paddingBottom: 32, justifyContent: "space-between" }}>
             <View>
-              <Text className="text-[32px] font-bold text-navy dark:text-navy-dark mb-2">
+              <Text style={{ fontSize: 32, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
                 MediAssist
               </Text>
-              <Text className="text-[18px] text-gray-500 dark:text-gray-400 mb-12">
+              <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 48 }}>
                 Your medication companion
               </Text>
 
-              <NeoCard className="mb-8">
-                <Text className="text-[28px] font-bold text-navy dark:text-navy-dark mb-2">
+              <NeoCard style={{ marginBottom: 32 }}>
+                <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
                   Welcome!
                 </Text>
-                <Text className="text-[18px] text-gray-600 dark:text-gray-400 mb-6">
+                <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 24 }}>
                   Enter your phone number to get started. We'll send you a
                   verification code.
                 </Text>
 
-                <View className="flex-row gap-4 mb-6 w-full">
+                <View style={{ flexDirection: "row", gap: 16, marginBottom: 24, width: "100%" }}>
                   <NeoInput
                     value={countryCode}
                     onChangeText={setCountryCode}
                     keyboardType="phone-pad"
                     containerClassName="flex-[0.25]"
-                    className="text-center font-medium"
+                    style={{ textAlign: "center", fontWeight: "500" }}
                     maxLength={4}
                   />
                   <NeoInput
@@ -95,7 +100,7 @@ export default function PhoneScreen() {
                 </View>
 
                 {error && (
-                  <Text className="text-[18px] text-error font-medium mb-4">
+                  <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500", marginBottom: 16 }}>
                     {error}
                   </Text>
                 )}

@@ -1,4 +1,7 @@
 import { Modal, View, Text, Pressable } from "react-native";
+import { useColorScheme } from "nativewind";
+import { Colors } from "@/constants/colors";
+import { Typography, R, S } from "@/constants/typography";
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -21,34 +24,90 @@ export function ConfirmDialog({
   onCancel,
   destructive = false,
 }: ConfirmDialogProps) {
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+
   return (
     <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 bg-black/50 justify-center px-6">
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          justifyContent: "center",
+          paddingHorizontal: 24,
+        }}
+      >
         <View
-          className="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-soft"
+          style={{
+            backgroundColor: c.surface,
+            borderRadius: R.lg,
+            padding: S.xl,
+            borderWidth: 0.5,
+            borderColor: c.border,
+          }}
         >
-          <Text className="text-[24px] font-bold text-navy dark:text-navy-dark mb-3">
+          <Text
+            style={{
+              fontSize: Typography.lg,
+              fontWeight: "700",
+              color: c.textPrimary,
+              marginBottom: 12,
+            }}
+          >
             {title}
           </Text>
-          <Text className="text-[18px] text-gray-600 dark:text-gray-400 mb-6 leading-[26px]">
+          <Text
+            style={{
+              fontSize: Typography.base,
+              color: c.textSecondary,
+              marginBottom: 24,
+              lineHeight: 26,
+            }}
+          >
             {message}
           </Text>
-          <View className="flex-row gap-3">
+          <View style={{ flexDirection: "row", gap: 12 }}>
             <Pressable
               onPress={onCancel}
-              className="flex-1 min-h-[56px] items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800"
+              style={{
+                flex: 1,
+                minHeight: 56,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: R.md,
+                backgroundColor: "transparent",
+                borderWidth: 1.5,
+                borderColor: c.navy,
+              }}
             >
-              <Text className="text-[18px] font-bold text-navy dark:text-navy-dark">
+              <Text
+                style={{
+                  fontSize: Typography.base,
+                  fontWeight: "600",
+                  color: c.navy,
+                }}
+              >
                 {cancelText}
               </Text>
             </Pressable>
             <Pressable
               onPress={onConfirm}
-              className={`flex-1 min-h-[56px] items-center justify-center rounded-xl ${
-                destructive ? "bg-error" : "bg-primary"
-              }`}
+              style={{
+                flex: 1,
+                minHeight: 56,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: R.md,
+                backgroundColor: destructive ? c.danger : c.navy,
+              }}
             >
-              <Text className="text-[18px] font-bold text-white">
+              <Text
+                style={{
+                  fontSize: Typography.base,
+                  fontWeight: "600",
+                  color: "#FFFFFF",
+                }}
+              >
                 {confirmText}
               </Text>
             </Pressable>

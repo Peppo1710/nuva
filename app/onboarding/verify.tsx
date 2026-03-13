@@ -9,15 +9,20 @@ import {
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
 import { NeoCard } from "@/components/ui/NeoCard";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 30;
 
 export default function VerifyScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
@@ -114,36 +119,47 @@ export default function VerifyScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 px-6 pt-16 pb-8">
+        <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 64, paddingBottom: 32 }}>
           <Pressable
             onPress={() => router.back()}
             accessibilityLabel="Go back"
             accessibilityRole="button"
-            className="self-start mb-6 min-w-[56px] min-h-[56px] items-center justify-center
-              rounded-xl border-[1px] border-gray-200 dark:border-gray-700 px-4 bg-white dark:bg-surface-dark shadow-sm"
+            style={{
+              alignSelf: "flex-start",
+              marginBottom: 24,
+              minWidth: 56,
+              minHeight: 56,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: R.md,
+              borderWidth: 0.5,
+              borderColor: c.border,
+              paddingHorizontal: 16,
+              backgroundColor: c.surface,
+            }}
           >
-            <Text className="text-[18px] font-bold text-navy dark:text-navy-dark">
+            <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
               ← Back
             </Text>
           </Pressable>
 
-          <NeoCard className="mb-8">
-            <Text className="text-[28px] font-bold text-navy dark:text-navy-dark mb-2">
+          <NeoCard style={{ marginBottom: 32 }}>
+            <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
               Enter Verification Code
             </Text>
-            <Text className="text-[18px] text-gray-600 dark:text-gray-400 mb-8">
+            <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
               We sent a 6-digit code to{"\n"}
-              <Text className="font-bold text-navy dark:text-navy-dark">
+              <Text style={{ fontWeight: "700", color: c.textPrimary }}>
                 {phone}
               </Text>
             </Text>
 
-            <View className="flex-row justify-between gap-2 mb-6">
+            <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8, marginBottom: 24 }}>
               {otp.map((digit, index) => (
                 <TextInput
                   key={index}
@@ -157,12 +173,18 @@ export default function VerifyScreen() {
                   }
                   keyboardType="number-pad"
                   maxLength={index === 0 ? OTP_LENGTH : 1}
-                  className={`
-                    flex-1 min-h-[64px] text-center text-[28px] font-bold
-                    rounded-xl border-[1px] ${error ? "border-error bg-red-50 dark:bg-red-900/10" : "border-gray-300 dark:border-gray-700"}
-                    bg-surface dark:bg-surface-dark
-                    text-navy dark:text-navy-dark
-                  `}
+                  style={{
+                    flex: 1,
+                    minHeight: 64,
+                    textAlign: "center",
+                    fontSize: Typography.xl,
+                    fontWeight: "700",
+                    borderRadius: R.md,
+                    borderWidth: 1,
+                    borderColor: error ? c.danger : c.border,
+                    backgroundColor: c.surface,
+                    color: c.textPrimary,
+                  }}
                   autoFocus={index === 0}
                   selectTextOnFocus
                 />
@@ -170,29 +192,29 @@ export default function VerifyScreen() {
             </View>
 
             {error && (
-              <Text className="text-[18px] text-error font-medium text-center mb-4">
+              <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500", textAlign: "center", marginBottom: 16 }}>
                 {error}
               </Text>
             )}
 
             {loading && (
-              <Text className="text-[18px] text-primary font-medium text-center mb-4">
+              <Text style={{ fontSize: Typography.base, color: c.navy, fontWeight: "500", textAlign: "center", marginBottom: 16 }}>
                 Verifying...
               </Text>
             )}
           </NeoCard>
 
-          <View className="items-center">
+          <View style={{ alignItems: "center" }}>
             {resendTimer > 0 ? (
-              <Text className="text-[18px] text-gray-500 dark:text-gray-400">
+              <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>
                 Resend code in{" "}
-                <Text className="font-bold text-navy dark:text-navy-dark">
+                <Text style={{ fontWeight: "700", color: c.textPrimary }}>
                   {resendTimer}s
                 </Text>
               </Text>
             ) : (
-              <Pressable onPress={handleResend} className="min-h-[56px] justify-center px-6">
-                <Text className="text-[20px] font-bold text-primary underline">
+              <Pressable onPress={handleResend} style={{ minHeight: 56, justifyContent: "center", paddingHorizontal: 24 }}>
+                <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.navy, textDecorationLine: "underline" }}>
                   Resend Code
                 </Text>
               </Pressable>

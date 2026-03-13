@@ -83,11 +83,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       {children}
       {(!initialized || !isReady) && (
         <View
-          className="absolute inset-0 items-center justify-center bg-white dark:bg-background-dark"
+          className="absolute inset-0 items-center justify-center bg-background dark:bg-background-dark"
           style={{ zIndex: 100 }}
         >
-          <ActivityIndicator size="large" color="#2563EB" />
-          <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-4">
+          <ActivityIndicator size="large" color="#1A2744" />
+          <Text className="text-[17px] text-gray-500 dark:text-gray-400 mt-4">
             Loading...
           </Text>
         </View>

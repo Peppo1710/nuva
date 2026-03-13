@@ -6,6 +6,8 @@ import { useColorScheme } from "nativewind";
 import { useProfileStore } from "@/store/profileStore";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Colors } from "@/constants/colors";
+import { Typography, R, S } from "@/constants/typography";
 
 const GOALS = [
   {
@@ -32,6 +34,7 @@ export default function GoalScreen() {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
   const { primaryGoal, setProfile, saveOnboardingData, loading } =
     useProfileStore();
   const [selected, setSelected] = useState<string | null>(primaryGoal);
@@ -58,59 +61,87 @@ export default function GoalScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
-      <View className="flex-1 px-6 pt-6 pb-8">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 }}>
         <Pressable
           onPress={() => router.back()}
-          className="self-start mb-6 min-w-[56px] min-h-[56px] items-center justify-center
-            rounded-xl border-[1px] border-gray-200 dark:border-gray-700 px-4 bg-white dark:bg-surface-dark shadow-sm"
+          style={{
+            alignSelf: "flex-start",
+            marginBottom: 24,
+            minWidth: 56,
+            minHeight: 56,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: R.md,
+            borderWidth: 0.5,
+            borderColor: c.border,
+            paddingHorizontal: 16,
+            backgroundColor: c.surface,
+          }}
         >
-          <Text className="text-[18px] font-bold text-navy dark:text-navy-dark">
+          <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
             ← Back
           </Text>
         </Pressable>
 
         <ProgressBar currentStep={3} totalSteps={3} />
 
-        <Text className="text-[28px] font-bold text-navy dark:text-navy-dark mb-3">
+        <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
           What brings you here?
         </Text>
-        <Text className="text-[18px] text-gray-500 dark:text-gray-400 mb-8">
+        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
           Pick the option that best describes your needs.
         </Text>
 
-        <View className="gap-4">
+        <View style={{ gap: 16 }}>
           {GOALS.map((goal) => {
             const isSelected = selected === goal.id;
             return (
               <Pressable
                 key={goal.id}
                 onPress={() => setSelected(goal.id)}
-                className={`min-h-[80px] p-5 rounded-2xl border-[1px] shadow-sm mb-4 ${
-                  isSelected
-                    ? "border-primary bg-primary/5 dark:bg-primary/10"
-                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark"
-                }`}
+                style={{
+                  minHeight: 80,
+                  padding: S.lg,
+                  borderRadius: R.lg,
+                  borderWidth: isSelected ? 1.5 : 0.5,
+                  borderColor: isSelected ? c.navy : c.border,
+                  backgroundColor: isSelected
+                    ? (isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.04)")
+                    : c.surface,
+                  marginBottom: 0,
+                }}
               >
-                <View className="flex-row items-center">
-                  <Text className="text-[36px] mr-4">{goal.icon}</Text>
-                  <View className="flex-1">
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Text style={{ fontSize: 36, marginRight: 16 }}>{goal.icon}</Text>
+                  <View style={{ flex: 1 }}>
                     <Text
-                      className={`text-[20px] font-bold mb-1 ${
-                        isSelected
-                          ? "text-primary dark:text-primary-dark"
-                          : "text-navy dark:text-navy-dark"
-                      }`}
+                      style={{
+                        fontSize: Typography.md,
+                        fontWeight: "700",
+                        marginBottom: 4,
+                        color: isSelected ? c.navy : c.textPrimary,
+                      }}
                     >
                       {goal.title}
                     </Text>
-                    <Text className="text-[18px] text-gray-500 dark:text-gray-400">
+                    <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>
                       {goal.description}
                     </Text>
                   </View>
                   {isSelected && (
-                    <View className="w-[28px] h-[28px] bg-primary rounded-full items-center justify-center ml-2">
-                      <Text className="text-white text-[16px] font-bold">✓</Text>
+                    <View
+                      style={{
+                        width: 28,
+                        height: 28,
+                        backgroundColor: c.navy,
+                        borderRadius: 14,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginLeft: 8,
+                      }}
+                    >
+                      <Text style={{ color: "#FFFFFF", fontSize: Typography.sm, fontWeight: "700" }}>✓</Text>
                     </View>
                   )}
                 </View>
@@ -120,12 +151,12 @@ export default function GoalScreen() {
         </View>
 
         {error && (
-          <Text className="text-[18px] text-error font-medium text-center mt-6">
+          <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500", textAlign: "center", marginTop: 24 }}>
             {error}
           </Text>
         )}
 
-        <View className="flex-1" />
+        <View style={{ flex: 1 }} />
 
         <NeoButton
           title="Finish Setup"

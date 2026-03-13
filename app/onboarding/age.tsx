@@ -8,9 +8,12 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { useProfileStore } from "@/store/profileStore";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 const MIN_AGE = 40;
 const MAX_AGE = 100;
@@ -20,6 +23,8 @@ const VISIBLE_ITEMS = 5;
 
 export default function AgeScreen() {
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const { age, setProfile } = useProfileStore();
   const [selectedAge, setSelectedAge] = useState(age ?? 65);
   const flatListRef = useRef<FlatList>(null);
@@ -65,16 +70,21 @@ export default function AgeScreen() {
     const isSelected = item === selectedAge;
     return (
       <View
-        className={`h-[64px] items-center justify-center ${
-          isSelected ? "bg-primary/10" : ""
-        }`}
+        style={{
+          height: ITEM_HEIGHT,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: isSelected
+            ? (colorScheme === "dark" ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)")
+            : "transparent",
+        }}
       >
         <Text
-          className={`font-bold ${
-            isSelected
-              ? "text-[32px] text-primary"
-              : "text-[22px] text-gray-400 dark:text-gray-500"
-          }`}
+          style={{
+            fontWeight: "700",
+            fontSize: isSelected ? 32 : 22,
+            color: isSelected ? c.navy : c.textMuted,
+          }}
         >
           {item}
         </Text>
@@ -83,41 +93,75 @@ export default function AgeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
-      <View className="flex-1 px-6 pt-6 pb-8">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 }}>
         <Pressable
           onPress={() => router.back()}
-          className="self-start mb-6 min-w-[56px] min-h-[56px] items-center justify-center
-            rounded-xl border-[1px] border-gray-200 dark:border-gray-700 px-4 bg-white dark:bg-surface-dark shadow-sm"
+          style={{
+            alignSelf: "flex-start",
+            marginBottom: 24,
+            minWidth: 56,
+            minHeight: 56,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: R.md,
+            borderWidth: 0.5,
+            borderColor: c.border,
+            paddingHorizontal: 16,
+            backgroundColor: c.surface,
+          }}
         >
-          <Text className="text-[18px] font-bold text-navy dark:text-navy-dark">
+          <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
             ← Back
           </Text>
         </Pressable>
 
         <ProgressBar currentStep={2} totalSteps={3} />
 
-        <Text className="text-[28px] font-bold text-navy dark:text-navy-dark mb-3">
+        <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
           How old are you?
         </Text>
-        <Text className="text-[18px] text-gray-500 dark:text-gray-400 mb-8">
+        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
           This helps us personalize your experience.
         </Text>
 
-        <View className="flex-1 items-center justify-center">
-          <View className="w-full">
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <View style={{ width: "100%" }}>
             <View
-              className="rounded-3xl border-[1px] border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark overflow-hidden w-full shadow-soft"
-              style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }}
+              style={{
+                borderRadius: R.xl,
+                borderWidth: 0.5,
+                borderColor: c.border,
+                backgroundColor: c.surface,
+                overflow: "hidden",
+                width: "100%",
+                height: ITEM_HEIGHT * VISIBLE_ITEMS,
+              }}
             >
               <View
-                className="absolute top-0 left-0 right-0 h-[128px] z-10 bg-white/70 dark:bg-background-dark/70"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 128,
+                  zIndex: 10,
+                  backgroundColor: colorScheme === "dark"
+                    ? "rgba(13,19,33,0.7)"
+                    : "rgba(247,248,250,0.7)",
+                }}
                 pointerEvents="none"
               />
 
               <View
-                className="absolute left-4 right-4 z-10 border-t-2 border-b-2 border-primary"
                 style={{
+                  position: "absolute",
+                  left: 16,
+                  right: 16,
+                  zIndex: 10,
+                  borderTopWidth: 2,
+                  borderBottomWidth: 2,
+                  borderColor: c.navy,
                   top: ITEM_HEIGHT * 2,
                   height: ITEM_HEIGHT,
                 }}
@@ -125,7 +169,17 @@ export default function AgeScreen() {
               />
 
               <View
-                className="absolute bottom-0 left-0 right-0 h-[128px] z-10 bg-white/70 dark:bg-background-dark/70"
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 128,
+                  zIndex: 10,
+                  backgroundColor: colorScheme === "dark"
+                    ? "rgba(13,19,33,0.7)"
+                    : "rgba(247,248,250,0.7)",
+                }}
                 pointerEvents="none"
               />
 
@@ -152,7 +206,7 @@ export default function AgeScreen() {
             </View>
           </View>
 
-          <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mt-6">
+          <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginTop: 24 }}>
             {selectedAge} years old
           </Text>
         </View>

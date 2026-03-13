@@ -1,5 +1,8 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, Pressable, Modal, FlatList } from "react-native";
+import { useColorScheme } from "nativewind";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 interface NeoDropdownProps {
   label?: string;
@@ -18,6 +21,8 @@ export const NeoDropdown = React.memo(function NeoDropdown({
   placeholder = "Select...",
   error,
 }: NeoDropdownProps) {
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const [open, setOpen] = useState(false);
 
   const handleSelect = useCallback(
@@ -29,54 +34,103 @@ export const NeoDropdown = React.memo(function NeoDropdown({
   );
 
   return (
-    <View className="w-full">
+    <View style={{ width: "100%" }}>
       {label && (
-        <Text className="text-[18px] font-semibold text-navy dark:text-navy-dark mb-2">
+        <Text
+          style={{
+            fontSize: Typography.base,
+            fontWeight: "600",
+            color: c.textPrimary,
+            marginBottom: 8,
+          }}
+        >
           {label}
         </Text>
       )}
       <Pressable
         onPress={() => setOpen(true)}
-        className={`min-h-[56px] w-full px-4 justify-center rounded-xl border-[1px] ${
-          error ? "border-error" : "border-gray-200 dark:border-gray-700"
-        } bg-white dark:bg-surface-dark`}
+        style={{
+          minHeight: 56,
+          width: "100%",
+          paddingHorizontal: 16,
+          justifyContent: "center",
+          borderRadius: R.md,
+          borderWidth: 1,
+          borderColor: error ? c.danger : c.border,
+          backgroundColor: c.surface,
+        }}
       >
         <Text
-          className={`text-[18px] ${
-            value ? "text-navy dark:text-navy-dark font-medium" : "text-gray-400"
-          }`}
+          style={{
+            fontSize: Typography.base,
+            color: value ? c.textPrimary : c.textMuted,
+            fontWeight: value ? "500" : "400",
+          }}
         >
           {value || placeholder}
         </Text>
       </Pressable>
       {error && (
-        <Text className="text-[16px] text-error mt-1 font-medium">
+        <Text
+          style={{
+            fontSize: Typography.sm,
+            color: c.danger,
+            marginTop: 4,
+            fontWeight: "500",
+          }}
+        >
           {error}
         </Text>
       )}
 
       <Modal visible={open} transparent animationType="fade">
         <Pressable
-          className="flex-1 bg-black/50 justify-center px-6"
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            paddingHorizontal: 24,
+          }}
           onPress={() => setOpen(false)}
         >
-          <View className="bg-white dark:bg-surface-dark rounded-2xl shadow-soft max-h-[400px] overflow-hidden p-2">
+          <View
+            style={{
+              backgroundColor: c.surface,
+              borderRadius: R.lg,
+              maxHeight: 400,
+              overflow: "hidden",
+              padding: 8,
+              borderWidth: 0.5,
+              borderColor: c.border,
+            }}
+          >
             <FlatList
               data={options}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <Pressable
                   onPress={() => handleSelect(item)}
-                  className={`min-h-[56px] px-4 justify-center border-b border-gray-200 dark:border-gray-700 ${
-                    item === value ? "bg-primary/10" : ""
-                  }`}
+                  style={{
+                    minHeight: 56,
+                    paddingHorizontal: 16,
+                    justifyContent: "center",
+                    borderBottomWidth: 0.5,
+                    borderBottomColor: c.border,
+                    backgroundColor:
+                      item === value
+                        ? colorScheme === "dark"
+                          ? "rgba(58,81,160,0.15)"
+                          : "rgba(26,39,68,0.06)"
+                        : "transparent",
+                  }}
                 >
                   <Text
-                    className={`text-[18px] ${
-                      item === value
-                        ? "font-bold text-primary"
-                        : "text-black dark:text-white"
-                    }`}
+                    style={{
+                      fontSize: Typography.base,
+                      color:
+                        item === value ? c.navy : c.textPrimary,
+                      fontWeight: item === value ? "700" : "400",
+                    }}
                   >
                     {item}
                   </Text>

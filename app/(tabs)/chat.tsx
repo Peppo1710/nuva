@@ -13,8 +13,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useCallback } from "react";
+import { useColorScheme } from "nativewind";
 import * as ImagePicker from "expo-image-picker";
 import api from "@/lib/api";
+import { Colors } from "@/constants/colors";
+import { Typography, S, R } from "@/constants/typography";
 
 interface Message {
   id: string;
@@ -37,6 +40,10 @@ const QUICK_PROMPTS = [
 ];
 
 export default function ChatScreen() {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -74,7 +81,6 @@ export default function ChatScreen() {
       setTimeout(scrollToBottom, 100);
 
       try {
-        // Build history from messages (exclude loading messages)
         const history = messages
           .filter((m) => !m.loading)
           .map((m) => ({ role: m.role, content: m.content }));
@@ -124,7 +130,6 @@ export default function ChatScreen() {
     [sendMessage]
   );
 
-  // Opens gallery picker
   const openGallery = useCallback(async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -153,7 +158,6 @@ export default function ChatScreen() {
     }
   }, []);
 
-  // Opens camera to take a photo
   const openCamera = useCallback(async () => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -182,7 +186,6 @@ export default function ChatScreen() {
     }
   }, []);
 
-  // Shows an action sheet to choose gallery or camera
   const handleAttachImage = useCallback(() => {
     Alert.alert(
       "Attach Image",
@@ -196,12 +199,11 @@ export default function ChatScreen() {
     );
   }, [openGallery, openCamera]);
 
-  // Clears current chat and deletes history from backend
   const handleNewChat = useCallback(async () => {
     try {
       await api.delete("/ai/history");
     } catch {
-      // Even if backend fails, reset local state
+      // Reset local state regardless
     }
     setMessages([]);
     setInputText("");
@@ -214,37 +216,61 @@ export default function ChatScreen() {
 
       return (
         <View
-          className={`flex-row mb-4 px-4 ${isUser ? "justify-end" : "justify-start"}`}
+          style={{
+            flexDirection: "row",
+            marginBottom: 16,
+            paddingHorizontal: S.base,
+            justifyContent: isUser ? "flex-end" : "flex-start",
+          }}
         >
           {!isUser && (
-            <View className="w-8 h-8 rounded-full bg-primary items-center justify-center mr-2 mt-1">
-              <Text className="text-white text-[12px] font-bold">AI</Text>
+            <View
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: c.navy,
+                alignItems: "center",
+                justifyContent: "center",
+                marginRight: 8,
+                marginTop: 4,
+              }}
+            >
+              <Text style={{ color: "#FFFFFF", fontSize: Typography.xs, fontWeight: "700" }}>AI</Text>
             </View>
           )}
           <View
-            className={`max-w-[78%] px-4 py-3 rounded-2xl ${
-              isUser
-                ? "bg-primary rounded-tr-sm"
-                : "bg-surface dark:bg-surface-dark rounded-tl-sm border-[1px] border-gray-200 dark:border-gray-700"
-            }`}
+            style={{
+              maxWidth: "78%",
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderRadius: R.lg,
+              backgroundColor: isUser ? c.navy : c.surface,
+              borderWidth: isUser ? 0 : 0.5,
+              borderColor: isUser ? undefined : c.border,
+              borderTopRightRadius: isUser ? 4 : R.lg,
+              borderTopLeftRadius: isUser ? R.lg : 4,
+            }}
           >
             {item.imageUri && (
               <Image
                 source={{ uri: item.imageUri }}
-                className="w-[200px] h-[150px] rounded-xl mb-2"
+                style={{ width: 200, height: 150, borderRadius: R.md, marginBottom: 8 }}
                 resizeMode="cover"
               />
             )}
             {item.loading ? (
-              <View className="flex-row items-center gap-2">
-                <ActivityIndicator size="small" color="#2563EB" />
-                <Text className="text-[14px] text-gray-500">Thinking...</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <ActivityIndicator size="small" color={c.navy} />
+                <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>Thinking...</Text>
               </View>
             ) : (
               <Text
-                className={`text-[15px] leading-[22px] ${
-                  isUser ? "text-white" : "text-navy dark:text-navy-dark"
-                }`}
+                style={{
+                  fontSize: Typography.base,
+                  lineHeight: 24,
+                  color: isUser ? c.textOnNavy : c.textPrimary,
+                }}
               >
                 {item.content}
               </Text>
@@ -253,57 +279,90 @@ export default function ChatScreen() {
         </View>
       );
     },
-    []
+    [c]
   );
 
   const canSend = (inputText.trim().length > 0 || pendingImage !== null) && !isSending;
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark" edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={["top"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
         keyboardVerticalOffset={0}
       >
         {/* Header */}
-        <View className="px-6 pt-2 pb-3 border-b-[1px] border-gray-100 dark:border-gray-800 flex-row items-center justify-between">
+        <View
+          style={{
+            paddingHorizontal: S.xl,
+            paddingTop: 8,
+            paddingBottom: 12,
+            borderBottomWidth: 0.5,
+            borderBottomColor: c.border,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <View>
-            <Text className="text-[24px] font-bold text-navy dark:text-navy-dark">
-              Hii by AI 👋
+            <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary }}>
+              AI Chat
             </Text>
-            <Text className="text-[14px] text-gray-500 dark:text-gray-400">
+            <Text style={{ fontSize: Typography.sm, color: c.textSecondary }}>
               Your personal health companion
             </Text>
           </View>
 
-          {/* New Chat Button */}
           <Pressable
             onPress={handleNewChat}
-            className="w-[38px] h-[38px] rounded-full bg-primary/10 items-center justify-center"
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 19,
+              backgroundColor: isDark ? "rgba(58,81,160,0.15)" : "rgba(26,39,68,0.06)",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
             hitSlop={8}
           >
-            <Ionicons name="add" size={24} color="#2563EB" />
+            <Ionicons name="add" size={24} color={c.navy} />
           </Pressable>
         </View>
 
         {/* Messages or Quick Prompts */}
         {messages.length === 0 ? (
-          <View className="flex-1 px-4 pt-4">
-            <Text className="text-[16px] font-semibold text-gray-500 dark:text-gray-400 mb-3 px-2">
+          <View style={{ flex: 1, paddingHorizontal: S.base, paddingTop: S.base }}>
+            <Text
+              style={{
+                fontSize: Typography.sm,
+                fontWeight: "600",
+                color: c.textSecondary,
+                marginBottom: 12,
+                paddingHorizontal: 8,
+              }}
+            >
               Quick questions to get started:
             </Text>
-            <View className="gap-3">
+            <View style={{ gap: 12 }}>
               {QUICK_PROMPTS.map((prompt) => (
                 <Pressable
                   key={prompt.text}
                   onPress={() => handleQuickPrompt(prompt.text)}
-                  className="p-4 rounded-2xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark flex-row items-center"
+                  style={{
+                    padding: S.base,
+                    borderRadius: R.lg,
+                    borderWidth: 0.5,
+                    borderColor: c.border,
+                    backgroundColor: c.surface,
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
                 >
-                  <Text className="text-[20px] mr-3">{prompt.icon}</Text>
-                  <Text className="text-[15px] text-navy dark:text-navy-dark font-medium flex-1">
+                  <Text style={{ fontSize: Typography.md, marginRight: 12 }}>{prompt.icon}</Text>
+                  <Text style={{ fontSize: Typography.base, color: c.textPrimary, fontWeight: "500", flex: 1 }}>
                     {prompt.text}
                   </Text>
-                  <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                  <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
                 </Pressable>
               ))}
             </View>
@@ -314,20 +373,27 @@ export default function ChatScreen() {
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={renderMessage}
-            className="flex-1"
+            style={{ flex: 1 }}
             contentContainerStyle={{ paddingTop: 16, paddingBottom: 8 }}
             onContentSizeChange={scrollToBottom}
           />
         )}
 
         {/* Input Bar */}
-        <View className="px-4 py-3 border-t-[1px] border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark">
-          {/* Pending Image Preview */}
+        <View
+          style={{
+            paddingHorizontal: S.base,
+            paddingVertical: 12,
+            borderTopWidth: 0.5,
+            borderTopColor: c.border,
+            backgroundColor: c.bg,
+          }}
+        >
           {pendingImage && (
-            <View className="mb-2 relative self-start">
+            <View style={{ marginBottom: 8, alignSelf: "flex-start", position: "relative" }}>
               <Image
                 source={{ uri: pendingImage.uri }}
-                style={{ width: 80, height: 80, borderRadius: 12 }}
+                style={{ width: 80, height: 80, borderRadius: R.md }}
                 resizeMode="cover"
               />
               <Pressable
@@ -339,7 +405,7 @@ export default function ChatScreen() {
                   width: 22,
                   height: 22,
                   borderRadius: 11,
-                  backgroundColor: "#EF4444",
+                  backgroundColor: c.danger,
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -350,21 +416,47 @@ export default function ChatScreen() {
             </View>
           )}
 
-          <View className="flex-row items-end bg-surface dark:bg-surface-dark rounded-3xl px-3 py-2 border-[1px] border-gray-200 dark:border-gray-700">
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "flex-end",
+              backgroundColor: c.surface,
+              borderRadius: 24,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderWidth: 0.5,
+              borderColor: c.border,
+            }}
+          >
             <Pressable
               onPress={handleAttachImage}
-              className="w-[36px] h-[36px] items-center justify-center rounded-full bg-primary/10 mb-1"
+              style={{
+                width: 36,
+                height: 36,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 18,
+                backgroundColor: isDark ? "rgba(58,81,160,0.15)" : "rgba(26,39,68,0.06)",
+                marginBottom: 2,
+              }}
               hitSlop={8}
             >
-              <Ionicons name="camera" size={20} color="#2563EB" />
+              <Ionicons name="camera" size={20} color={c.navy} />
             </Pressable>
 
             <TextInput
               value={inputText}
               onChangeText={setInputText}
               placeholder={pendingImage ? "Add a prompt for this image..." : "Type your message..."}
-              placeholderTextColor="#9CA3AF"
-              className="flex-1 text-[15px] text-navy dark:text-navy-dark px-3 max-h-[100px] min-h-[36px]"
+              placeholderTextColor={c.textMuted}
+              style={{
+                flex: 1,
+                fontSize: Typography.base,
+                color: c.textPrimary,
+                paddingHorizontal: 12,
+                maxHeight: 100,
+                minHeight: 36,
+              }}
               multiline
               onSubmitEditing={handleSend}
               blurOnSubmit={false}
@@ -373,9 +465,15 @@ export default function ChatScreen() {
             <Pressable
               onPress={handleSend}
               disabled={!canSend}
-              className={`w-[36px] h-[36px] items-center justify-center rounded-full mb-1 ${
-                canSend ? "bg-primary" : "bg-gray-200 dark:bg-gray-700"
-              }`}
+              style={{
+                width: 36,
+                height: 36,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 18,
+                backgroundColor: canSend ? c.navy : c.border,
+                marginBottom: 2,
+              }}
               hitSlop={8}
             >
               {isSending ? (
@@ -384,7 +482,7 @@ export default function ChatScreen() {
                 <Ionicons
                   name="send"
                   size={16}
-                  color={canSend ? "#FFFFFF" : "#9CA3AF"}
+                  color={canSend ? "#FFFFFF" : c.textMuted}
                   style={{ marginLeft: 2 }}
                 />
               )}

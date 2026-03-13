@@ -8,13 +8,18 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "nativewind";
 import { useProfileStore } from "@/store/profileStore";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 export default function NameScreen() {
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const { username, setProfile } = useProfileStore();
   const [name, setName] = useState(username || "");
   const [error, setError] = useState<string | null>(null);
@@ -31,28 +36,39 @@ export default function NameScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 px-6 pt-6 pb-8">
+        <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 }}>
           <Pressable
             onPress={() => router.back()}
-            className="self-start mb-6 min-w-[56px] min-h-[56px] items-center justify-center
-              rounded-xl border-[1px] border-gray-200 dark:border-gray-700 px-4 bg-white dark:bg-surface-dark shadow-sm"
+            style={{
+              alignSelf: "flex-start",
+              marginBottom: 24,
+              minWidth: 56,
+              minHeight: 56,
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: R.md,
+              borderWidth: 0.5,
+              borderColor: c.border,
+              paddingHorizontal: 16,
+              backgroundColor: c.surface,
+            }}
           >
-            <Text className="text-[18px] font-bold text-navy dark:text-navy-dark">
+            <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
               ← Back
             </Text>
           </Pressable>
 
           <ProgressBar currentStep={1} totalSteps={3} />
 
-          <Text className="text-[28px] font-bold text-navy dark:text-navy-dark mb-3">
+          <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
             What should we call you?
           </Text>
-          <Text className="text-[18px] text-gray-500 dark:text-gray-400 mb-8">
+          <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
             This is how we'll greet you in the app.
           </Text>
 
@@ -65,11 +81,11 @@ export default function NameScreen() {
             placeholder="Your Name"
             autoFocus
             maxLength={100}
-            className="min-h-[64px] text-[22px]"
+            style={{ minHeight: 64, fontSize: 22 }}
             error={error ?? undefined}
           />
 
-          <View className="flex-1" />
+          <View style={{ flex: 1 }} />
 
           <NeoButton
             title="Continue"

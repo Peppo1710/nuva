@@ -15,6 +15,8 @@ import { NeoCard } from "@/components/ui/NeoCard";
 import { NeoToggle } from "@/components/ui/NeoToggle";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useReminderStore, Reminder } from "@/store/reminderStore";
+import { Colors } from "@/constants/colors";
+import { Typography, S, R } from "@/constants/typography";
 
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -73,6 +75,7 @@ const ReminderCard = React.memo(function ReminderCard({
   onDelete: (reminder: Reminder) => void;
   isDark: boolean;
 }) {
+  const c = isDark ? Colors.dark : Colors.light;
   const repeatLabel =
     reminder.repeat_type === "daily"
       ? "Every day"
@@ -81,16 +84,16 @@ const ReminderCard = React.memo(function ReminderCard({
         : "";
 
   return (
-    <NeoCard className="mb-4">
-      <View className="flex-row items-start justify-between">
-        <View className="flex-1 mr-3">
-          <Text className="text-[32px] font-bold text-navy dark:text-navy-dark leading-[38px]">
+    <NeoCard style={{ marginBottom: 16 }}>
+      <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <View style={{ flex: 1, marginRight: 12 }}>
+          <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.violet, lineHeight: 38 }}>
             {formatTime(reminder.reminder_time)}
           </Text>
-          <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mt-1">
+          <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginTop: 4 }}>
             {reminder.medicine_name}
           </Text>
-          <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-1">
+          <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
             {formatDose(reminder.dose_amount, reminder.dose_unit)}
             {reminder.notes ? ` · ${reminder.notes}` : ""}
           </Text>
@@ -102,22 +105,27 @@ const ReminderCard = React.memo(function ReminderCard({
       </View>
 
       {reminder.repeat_type === "specific_days" ? (
-        <View className="flex-row mt-4 gap-2">
+        <View style={{ flexDirection: "row", marginTop: 16, gap: 8 }}>
           {DAY_LABELS.map((label, index) => {
             const isActive = reminder.days_of_week?.includes(index);
             return (
               <View
                 key={index}
-                className={`w-[38px] h-[38px] rounded-full items-center justify-center ${
-                  isActive
-                    ? "bg-primary"
-                    : "bg-gray-100 dark:bg-gray-800"
-                }`}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: isActive ? c.navy : (isDark ? Colors.dark.surface : "#F0F2F5"),
+                }}
               >
                 <Text
-                  className={`text-[14px] font-bold ${
-                    isActive ? "text-white" : "text-gray-400 dark:text-gray-500"
-                  }`}
+                  style={{
+                    fontSize: Typography.sm,
+                    fontWeight: "700",
+                    color: isActive ? "#FFFFFF" : c.textMuted,
+                  }}
                 >
                   {label}
                 </Text>
@@ -126,24 +134,29 @@ const ReminderCard = React.memo(function ReminderCard({
           })}
         </View>
       ) : (
-        <Text className="text-[16px] text-gray-400 dark:text-gray-500 mt-3">
+        <Text style={{ fontSize: Typography.sm, color: c.textMuted, marginTop: 12 }}>
           {repeatLabel}
         </Text>
       )}
 
-      <View className="flex-row mt-4 gap-3">
+      <View style={{ flexDirection: "row", marginTop: 16, gap: 12 }}>
         <Pressable
           onPress={() => onEdit(reminder)}
           accessibilityLabel="Edit reminder"
           accessibilityRole="button"
-          className="flex-row items-center min-h-[48px] px-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-[1px] border-gray-200 dark:border-gray-700"
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            minHeight: 48,
+            paddingHorizontal: 16,
+            borderRadius: R.md,
+            borderWidth: 0.5,
+            borderColor: c.border,
+            backgroundColor: isDark ? Colors.dark.surface : "#F7F8FA",
+          }}
         >
-          <Ionicons
-            name="pencil-outline"
-            size={20}
-            color={isDark ? "#E5E7EB" : "#374151"}
-          />
-          <Text className="text-[16px] font-semibold text-navy dark:text-navy-dark ml-2">
+          <Ionicons name="pencil-outline" size={20} color={c.textPrimary} />
+          <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.textPrimary, marginLeft: 8 }}>
             Edit
           </Text>
         </Pressable>
@@ -151,14 +164,19 @@ const ReminderCard = React.memo(function ReminderCard({
           onPress={() => onDelete(reminder)}
           accessibilityLabel="Delete reminder"
           accessibilityRole="button"
-          className="flex-row items-center min-h-[48px] px-4 rounded-xl bg-red-50 dark:bg-red-900/20 border-[1px] border-red-200 dark:border-red-800"
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            minHeight: 48,
+            paddingHorizontal: 16,
+            borderRadius: R.md,
+            borderWidth: 0.5,
+            borderColor: isDark ? "rgba(240,149,149,0.3)" : "rgba(226,75,74,0.2)",
+            backgroundColor: isDark ? "rgba(240,149,149,0.08)" : "rgba(226,75,74,0.04)",
+          }}
         >
-          <Ionicons
-            name="trash-outline"
-            size={20}
-            color="#EF4444"
-          />
-          <Text className="text-[16px] font-semibold text-error ml-2">
+          <Ionicons name="trash-outline" size={20} color={c.danger} />
+          <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.danger, marginLeft: 8 }}>
             Delete
           </Text>
         </Pressable>
@@ -171,6 +189,7 @@ export default function RemindersScreen() {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
   const {
     reminders,
     loading,
@@ -285,9 +304,9 @@ export default function RemindersScreen() {
 
   if (loading && reminders.length === 0) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-background-dark items-center justify-center">
-        <ActivityIndicator size="large" color="#0F766E" />
-        <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-4">
+      <SafeAreaView style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={c.navy} />
+        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
           Loading your reminders...
         </Text>
       </SafeAreaView>
@@ -295,13 +314,13 @@ export default function RemindersScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
-      <View className="flex-1">
-        <View className="px-6 pt-8 pb-4">
-          <Text className="text-[28px] font-bold text-navy dark:text-navy-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      <View style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: S.xl, paddingTop: 32, paddingBottom: 16 }}>
+          <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
             Reminders
           </Text>
-          <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-1">
+          <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
             {reminders.length > 0
               ? `${reminders.length} active reminder${reminders.length !== 1 ? "s" : ""}`
               : "No reminders yet"}
@@ -309,26 +328,51 @@ export default function RemindersScreen() {
         </View>
 
         {error && (
-          <View className="mx-6 mb-4 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border-[1px] border-red-200 dark:border-red-800">
-            <Text className="text-[18px] text-error font-medium">{error}</Text>
+          <View
+            style={{
+              marginHorizontal: S.xl,
+              marginBottom: 16,
+              padding: S.base,
+              borderRadius: R.lg,
+              backgroundColor: isDark ? "rgba(240,149,149,0.08)" : "rgba(226,75,74,0.04)",
+              borderWidth: 0.5,
+              borderColor: isDark ? "rgba(240,149,149,0.3)" : "rgba(226,75,74,0.2)",
+            }}
+          >
+            <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500" }}>{error}</Text>
           </View>
         )}
 
         {reminders.length === 0 && !loading ? (
-          <View className="flex-1 items-center justify-center px-8">
-            <Text className="text-[64px] mb-6">💊</Text>
-            <Text className="text-[22px] font-bold text-navy dark:text-navy-dark text-center mb-3">
+          <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
+            <Text style={{ fontSize: 64, marginBottom: 24 }}>💊</Text>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, textAlign: "center", marginBottom: 12 }}>
               No Reminders Set
             </Text>
-            <Text className="text-[18px] text-gray-500 dark:text-gray-400 text-center leading-[26px] mb-8">
-              Tap the + button below to add your first medication reminder. 
+            <Text
+              style={{
+                fontSize: Typography.base,
+                color: c.textSecondary,
+                textAlign: "center",
+                lineHeight: 26,
+                marginBottom: 32,
+              }}
+            >
+              Tap the + button below to add your first medication reminder.
               You'll get notifications so you never miss a dose.
             </Text>
             <Pressable
               onPress={() => router.push("/reminder/add")}
-              className="min-h-[56px] px-8 rounded-xl bg-primary items-center justify-center"
+              style={{
+                minHeight: 56,
+                paddingHorizontal: 32,
+                borderRadius: R.md,
+                backgroundColor: c.navy,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
-              <Text className="text-[18px] font-bold text-white">
+              <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textOnNavy }}>
                 Add Your First Reminder
               </Text>
             </Pressable>
@@ -337,7 +381,7 @@ export default function RemindersScreen() {
           <FlatList
             data={flatData}
             keyExtractor={(item) => item.key}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: S.xl, paddingBottom: 100 }}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             }
@@ -346,16 +390,16 @@ export default function RemindersScreen() {
             renderItem={({ item }) => {
               if (item.type === "header") {
                 return (
-                  <View className="flex-row items-center mt-4 mb-3">
+                  <View style={{ flexDirection: "row", alignItems: "center", marginTop: 16, marginBottom: 12 }}>
                     <Ionicons
                       name={item.icon as keyof typeof Ionicons.glyphMap}
                       size={22}
-                      color={isDark ? "#A1A1AA" : "#6B7280"}
+                      color={c.textSecondary}
                     />
-                    <Text className="text-[20px] font-bold text-navy dark:text-navy-dark ml-2 flex-1">
+                    <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginLeft: 8, flex: 1 }}>
                       {item.label}
                     </Text>
-                    <Text className="text-[16px] text-gray-400 dark:text-gray-500">
+                    <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>
                       {item.range}
                     </Text>
                   </View>
@@ -374,18 +418,26 @@ export default function RemindersScreen() {
           />
         )}
 
-        {/* FAB - Add Reminder */}
+        {/* FAB */}
         <Pressable
           onPress={() => router.push("/reminder/add")}
           accessibilityLabel="Add new reminder"
           accessibilityRole="button"
-          className="absolute bottom-6 right-6 w-[64px] h-[64px] rounded-2xl bg-primary items-center justify-center shadow-lg"
           style={({ pressed }) => ({
+            position: "absolute",
+            bottom: 24,
+            right: 24,
+            width: 64,
+            height: 64,
+            borderRadius: R.lg,
+            backgroundColor: c.navy,
+            alignItems: "center",
+            justifyContent: "center",
             opacity: pressed ? 0.8 : 1,
             elevation: 8,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
+            shadowOpacity: 0.2,
             shadowRadius: 6,
           })}
         >

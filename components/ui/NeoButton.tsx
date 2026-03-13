@@ -1,5 +1,8 @@
-import React from "react";
-import { Pressable, Text, ActivityIndicator, View } from "react-native";
+import React, { useRef, useCallback } from "react";
+import { Pressable, Text, ActivityIndicator, Animated } from "react-native";
+import { useColorScheme } from "nativewind";
+import { Colors } from "@/constants/colors";
+import { Typography, R } from "@/constants/typography";
 
 interface NeoButtonProps {
   title: string;
@@ -18,39 +21,67 @@ export const NeoButton = React.memo(function NeoButton({
   loading = false,
   className = "",
 }: NeoButtonProps) {
-  const bgColor = {
-    primary: "bg-primary",
-    accent: "bg-accent",
-    outline: "bg-transparent border-[1.5px] border-primary dark:border-primary-dark",
-  }[variant];
+  const { colorScheme } = useColorScheme();
+  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const textColor = {
-    primary: "text-white",
-    accent: "text-white",
-    outline: "text-primary dark:text-primary-dark",
-  }[variant];
+  const handlePressIn = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.97,
+      duration: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  const isPrimary = variant === "primary" || variant === "accent";
 
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled || loading}
-      className={`
-        min-h-[56px] w-full items-center justify-center rounded-xl
-        ${bgColor}
-        ${className}
-      `}
-      style={({ pressed }) => ({
-        opacity: pressed || disabled ? 0.7 : 1,
-      })}
+    <Animated.View
+      className={className}
+      style={{ transform: [{ scale: scaleAnim }] }}
     >
-      {loading ? (
-        <ActivityIndicator
-          color={variant === "outline" ? "#0F766E" : "#FFFFFF"}
-          size="small"
-        />
-      ) : (
-        <Text className={`text-[18px] font-bold ${textColor}`}>{title}</Text>
-      )}
-    </Pressable>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || loading}
+        style={{
+          minHeight: 56,
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: R.md,
+          backgroundColor: isPrimary ? c.navy : "transparent",
+          borderWidth: isPrimary ? 0 : 1.5,
+          borderColor: isPrimary ? undefined : c.navy,
+          opacity: disabled ? 0.5 : 1,
+        }}
+      >
+        {loading ? (
+          <ActivityIndicator
+            color={isPrimary ? c.textOnNavy : c.navy}
+            size="small"
+          />
+        ) : (
+          <Text
+            style={{
+              fontSize: Typography.base,
+              fontWeight: "600",
+              color: isPrimary ? c.textOnNavy : c.navy,
+            }}
+          >
+            {title}
+          </Text>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 });

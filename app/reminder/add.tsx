@@ -10,11 +10,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useColorScheme } from "nativewind";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
 import { NeoCard } from "@/components/ui/NeoCard";
 import { useReminderStore, CreateReminderData } from "@/store/reminderStore";
 import { useMedicalStore } from "@/store/medicalStore";
+import { Colors } from "@/constants/colors";
+import { Typography, S, R } from "@/constants/typography";
 
 const DOSE_UNITS = ["tablet", "capsule", "ml", "drops"];
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -26,6 +29,10 @@ const REPEAT_OPTIONS = [
 
 export default function AddReminderScreen() {
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
+
   const params = useLocalSearchParams<{
     id?: string;
     medicine_name?: string;
@@ -135,33 +142,43 @@ export default function AddReminderScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-background-dark">
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-row items-center px-6 pt-6 pb-4">
+        <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: S.xl, paddingTop: S.xl, paddingBottom: S.base }}>
           <Pressable
             onPress={() => router.back()}
             accessibilityLabel="Go back"
             accessibilityRole="button"
-            className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark items-center justify-center mr-4 shadow-sm"
+            style={{
+              minWidth: 56,
+              minHeight: 56,
+              borderRadius: R.md,
+              borderWidth: 0.5,
+              borderColor: c.border,
+              backgroundColor: c.surface,
+              alignItems: "center",
+              justifyContent: "center",
+              marginRight: 16,
+            }}
           >
-            <Text className="text-[28px] text-navy dark:text-navy-dark">←</Text>
+            <Text style={{ fontSize: Typography.xl, color: c.textPrimary }}>←</Text>
           </Pressable>
-          <Text className="text-[24px] font-bold text-navy dark:text-navy-dark flex-1">
+          <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary, flex: 1 }}>
             {isEditing ? "Edit Reminder" : "Add Reminder"}
           </Text>
         </View>
 
         <ScrollView
-          className="flex-1 px-6"
+          style={{ flex: 1, paddingHorizontal: S.xl }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           {/* Medicine Name */}
-          <NeoCard className="mb-5">
-            <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mb-3">
+          <NeoCard style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
               Medicine Name
             </Text>
             <NeoInput
@@ -176,7 +193,16 @@ export default function AddReminderScreen() {
               error={nameError}
             />
             {showSuggestions && filteredMedications.length > 0 && (
-              <View className="mt-2 rounded-xl border-[1px] border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark overflow-hidden shadow-sm">
+              <View
+                style={{
+                  marginTop: 8,
+                  borderRadius: R.md,
+                  borderWidth: 0.5,
+                  borderColor: c.border,
+                  backgroundColor: c.surface,
+                  overflow: "hidden",
+                }}
+              >
                 {filteredMedications.slice(0, 5).map((med) => (
                   <Pressable
                     key={med.id}
@@ -184,13 +210,18 @@ export default function AddReminderScreen() {
                       setMedicineName(med.name);
                       setShowSuggestions(false);
                     }}
-                    className="px-4 py-3 border-b border-gray-200 dark:border-gray-700"
+                    style={{
+                      paddingHorizontal: 16,
+                      paddingVertical: 12,
+                      borderBottomWidth: 0.5,
+                      borderBottomColor: c.border,
+                    }}
                   >
-                    <Text className="text-[18px] text-navy dark:text-navy-dark">
+                    <Text style={{ fontSize: Typography.base, color: c.textPrimary }}>
                       {med.name}
                     </Text>
                     {med.dosage && (
-                      <Text className="text-[18px] text-gray-500 dark:text-gray-400">
+                      <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>
                         {med.dosage}
                       </Text>
                     )}
@@ -201,50 +232,78 @@ export default function AddReminderScreen() {
           </NeoCard>
 
           {/* Dosage */}
-          <NeoCard className="mb-5">
-            <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mb-3">
+          <NeoCard style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
               Dosage
             </Text>
-            <View className="flex-row items-center mb-4">
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
               <Pressable
                 onPress={() => setDoseAmount(Math.max(0.5, doseAmount - 0.5))}
-                className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark items-center justify-center shadow-sm"
+                style={{
+                  minWidth: 56,
+                  minHeight: 56,
+                  borderRadius: R.md,
+                  borderWidth: 0.5,
+                  borderColor: c.border,
+                  backgroundColor: c.surface,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <Text className="text-[28px] font-bold text-navy dark:text-navy-dark">
+                <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
                   −
                 </Text>
               </Pressable>
-              <View className="flex-1 items-center justify-center mx-4">
-                <Text className="text-[32px] font-bold text-navy dark:text-navy-dark">
+              <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginHorizontal: 16 }}>
+                <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary }}>
                   {doseAmount % 1 === 0 ? doseAmount.toFixed(0) : doseAmount.toFixed(1)}
                 </Text>
               </View>
               <Pressable
                 onPress={() => setDoseAmount(doseAmount + 0.5)}
-                className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark items-center justify-center shadow-sm"
+                style={{
+                  minWidth: 56,
+                  minHeight: 56,
+                  borderRadius: R.md,
+                  borderWidth: 0.5,
+                  borderColor: c.border,
+                  backgroundColor: c.surface,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
-                <Text className="text-[28px] font-bold text-navy dark:text-navy-dark">
+                <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
                   +
                 </Text>
               </Pressable>
             </View>
-            <View className="flex-row flex-wrap">
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               {DOSE_UNITS.map((unit) => (
                 <Pressable
                   key={unit}
                   onPress={() => setDoseUnit(unit)}
-                  className={`px-5 py-3 mr-3 mb-2 rounded-xl border-[1px] min-h-[48px] items-center justify-center shadow-sm ${
-                    doseUnit === unit
-                      ? "border-primary bg-primary/10 dark:bg-primary/20"
-                      : "border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark"
-                  }`}
+                  style={{
+                    paddingHorizontal: 20,
+                    paddingVertical: 12,
+                    marginRight: 12,
+                    marginBottom: 8,
+                    borderRadius: R.md,
+                    borderWidth: doseUnit === unit ? 1.5 : 0.5,
+                    minHeight: 48,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderColor: doseUnit === unit ? c.navy : c.border,
+                    backgroundColor: doseUnit === unit
+                      ? (isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)")
+                      : c.surface,
+                  }}
                 >
                   <Text
-                    className={`text-[18px] font-semibold ${
-                      doseUnit === unit
-                        ? "text-primary"
-                        : "text-navy dark:text-navy-dark"
-                    }`}
+                    style={{
+                      fontSize: Typography.base,
+                      fontWeight: "600",
+                      color: doseUnit === unit ? c.navy : c.textPrimary,
+                    }}
                   >
                     {unit}
                   </Text>
@@ -254,57 +313,79 @@ export default function AddReminderScreen() {
           </NeoCard>
 
           {/* Time Picker */}
-          <NeoCard className="mb-5">
-            <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mb-3">
+          <NeoCard style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
               Time
             </Text>
-            <View className="flex-row items-center justify-center">
-              <View className="items-center">
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+              <View style={{ alignItems: "center" }}>
                 <Pressable
                   onPress={() => setHour((h) => (h + 1) % 24)}
-                  className="min-w-[56px] min-h-[48px] items-center justify-center"
+                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
                 >
-                  <Text className="text-[24px] text-navy dark:text-navy-dark">▲</Text>
+                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▲</Text>
                 </Pressable>
-                <View className="min-w-[80px] min-h-[64px] rounded-2xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark items-center justify-center shadow-sm">
-                  <Text className="text-[32px] font-bold text-navy dark:text-navy-dark">
+                <View
+                  style={{
+                    minWidth: 80,
+                    minHeight: 64,
+                    borderRadius: R.lg,
+                    borderWidth: 0.5,
+                    borderColor: c.border,
+                    backgroundColor: c.surface,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.violet }}>
                     {hour.toString().padStart(2, "0")}
                   </Text>
                 </View>
                 <Pressable
                   onPress={() => setHour((h) => (h - 1 + 24) % 24)}
-                  className="min-w-[56px] min-h-[48px] items-center justify-center"
+                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
                 >
-                  <Text className="text-[24px] text-navy dark:text-navy-dark">▼</Text>
+                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▼</Text>
                 </Pressable>
               </View>
 
-              <Text className="text-[32px] font-bold text-navy dark:text-navy-dark mx-3">
+              <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary, marginHorizontal: 12 }}>
                 :
               </Text>
 
-              <View className="items-center">
+              <View style={{ alignItems: "center" }}>
                 <Pressable
                   onPress={() => setMinute((m) => (m + 5) % 60)}
-                  className="min-w-[56px] min-h-[48px] items-center justify-center"
+                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
                 >
-                  <Text className="text-[24px] text-navy dark:text-navy-dark">▲</Text>
+                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▲</Text>
                 </Pressable>
-                <View className="min-w-[80px] min-h-[64px] rounded-2xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark items-center justify-center shadow-sm">
-                  <Text className="text-[32px] font-bold text-navy dark:text-navy-dark">
+                <View
+                  style={{
+                    minWidth: 80,
+                    minHeight: 64,
+                    borderRadius: R.lg,
+                    borderWidth: 0.5,
+                    borderColor: c.border,
+                    backgroundColor: c.surface,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.violet }}>
                     {minute.toString().padStart(2, "0")}
                   </Text>
                 </View>
                 <Pressable
                   onPress={() => setMinute((m) => (m - 5 + 60) % 60)}
-                  className="min-w-[56px] min-h-[48px] items-center justify-center"
+                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
                 >
-                  <Text className="text-[24px] text-navy dark:text-navy-dark">▼</Text>
+                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▼</Text>
                 </Pressable>
               </View>
 
-              <View className="ml-4 items-center justify-center">
-                <Text className="text-[20px] font-semibold text-gray-500 dark:text-gray-400">
+              <View style={{ marginLeft: 16, alignItems: "center", justifyContent: "center" }}>
+                <Text style={{ fontSize: Typography.md, fontWeight: "600", color: c.textSecondary }}>
                   {formatTime(hour, minute)}
                 </Text>
               </View>
@@ -312,57 +393,72 @@ export default function AddReminderScreen() {
           </NeoCard>
 
           {/* Repeat Pattern */}
-          <NeoCard className="mb-5">
-            <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mb-3">
+          <NeoCard style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
               Repeat
             </Text>
             {REPEAT_OPTIONS.map((option) => (
               <Pressable
                 key={option.value}
                 onPress={() => setRepeatType(option.value)}
-                className={`p-4 mb-3 rounded-2xl border-[1px] min-h-[56px] shadow-sm ${
-                  repeatType === option.value
-                    ? "border-primary bg-primary/10 dark:bg-primary/20"
-                    : "border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark"
-                }`}
+                style={{
+                  padding: S.base,
+                  marginBottom: 12,
+                  borderRadius: R.lg,
+                  borderWidth: repeatType === option.value ? 1.5 : 0.5,
+                  minHeight: 56,
+                  borderColor: repeatType === option.value ? c.navy : c.border,
+                  backgroundColor: repeatType === option.value
+                    ? (isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)")
+                    : c.surface,
+                }}
               >
                 <Text
-                  className={`text-[18px] font-bold ${
-                    repeatType === option.value
-                      ? "text-primary"
-                      : "text-navy dark:text-navy-dark"
-                  }`}
+                  style={{
+                    fontSize: Typography.base,
+                    fontWeight: "700",
+                    color: repeatType === option.value ? c.navy : c.textPrimary,
+                  }}
                 >
                   {option.label}
                 </Text>
-                <Text className="text-[18px] text-gray-500 dark:text-gray-400 mt-1">
+                <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
                   {option.description}
                 </Text>
               </Pressable>
             ))}
 
             {repeatType === "specific_days" && (
-              <View className="mt-3">
-                <Text className="text-[18px] font-semibold text-navy dark:text-navy-dark mb-3">
+              <View style={{ marginTop: 12 }}>
+                <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textPrimary, marginBottom: 12 }}>
                   Select Days
                 </Text>
-                <View className="flex-row flex-wrap">
+                <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
                   {DAY_LABELS.map((label, index) => (
                     <Pressable
                       key={index}
                       onPress={() => toggleDay(index)}
-                      className={`min-w-[56px] min-h-[56px] rounded-xl items-center justify-center mr-2 mb-2 border-[1px] shadow-sm ${
-                        daysOfWeek.includes(index)
-                          ? "border-primary bg-primary"
-                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark"
-                      }`}
+                      style={{
+                        minWidth: 56,
+                        minHeight: 56,
+                        borderRadius: R.md,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: 8,
+                        marginBottom: 8,
+                        borderWidth: 0.5,
+                        borderColor: daysOfWeek.includes(index) ? c.navy : c.border,
+                        backgroundColor: daysOfWeek.includes(index)
+                          ? c.navy
+                          : c.surface,
+                      }}
                     >
                       <Text
-                        className={`text-[18px] font-bold ${
-                          daysOfWeek.includes(index)
-                            ? "text-white"
-                            : "text-navy dark:text-navy-dark"
-                        }`}
+                        style={{
+                          fontSize: Typography.base,
+                          fontWeight: "700",
+                          color: daysOfWeek.includes(index) ? "#FFFFFF" : c.textPrimary,
+                        }}
                       >
                         {label}
                       </Text>
@@ -373,30 +469,48 @@ export default function AddReminderScreen() {
             )}
 
             {repeatType === "interval" && (
-              <View className="mt-3">
-                <Text className="text-[18px] font-semibold text-navy dark:text-navy-dark mb-3">
+              <View style={{ marginTop: 12 }}>
+                <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textPrimary, marginBottom: 12 }}>
                   Every how many hours?
                 </Text>
-                <View className="flex-row items-center">
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Pressable
                     onPress={() => setIntervalHours(Math.max(1, intervalHours - 1))}
-                    className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark items-center justify-center shadow-sm"
+                    style={{
+                      minWidth: 56,
+                      minHeight: 56,
+                      borderRadius: R.md,
+                      borderWidth: 0.5,
+                      borderColor: c.border,
+                      backgroundColor: c.surface,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
-                    <Text className="text-[28px] font-bold text-navy dark:text-navy-dark">
+                    <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
                       −
                     </Text>
                   </Pressable>
-                  <View className="flex-1 items-center justify-center mx-4">
-                    <Text className="text-[32px] font-bold text-navy dark:text-navy-dark">
+                  <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginHorizontal: 16 }}>
+                    <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary }}>
                       {intervalHours}
                     </Text>
-                    <Text className="text-[18px] text-gray-500 dark:text-gray-400">hours</Text>
+                    <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>hours</Text>
                   </View>
                   <Pressable
                     onPress={() => setIntervalHours(intervalHours + 1)}
-                    className="min-w-[56px] min-h-[56px] rounded-xl border-[1px] border-gray-200 dark:border-gray-700 bg-surface dark:bg-surface-dark items-center justify-center shadow-sm"
+                    style={{
+                      minWidth: 56,
+                      minHeight: 56,
+                      borderRadius: R.md,
+                      borderWidth: 0.5,
+                      borderColor: c.border,
+                      backgroundColor: c.surface,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
                   >
-                    <Text className="text-[28px] font-bold text-navy dark:text-navy-dark">
+                    <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
                       +
                     </Text>
                   </Pressable>
@@ -406,8 +520,8 @@ export default function AddReminderScreen() {
           </NeoCard>
 
           {/* Notes */}
-          <NeoCard className="mb-5">
-            <Text className="text-[20px] font-bold text-navy dark:text-navy-dark mb-3">
+          <NeoCard style={{ marginBottom: 20 }}>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
               Notes (Optional)
             </Text>
             <NeoInput
@@ -416,11 +530,11 @@ export default function AddReminderScreen() {
               placeholder="e.g. Take after food, with water"
               multiline
               numberOfLines={3}
-              className="min-h-[80px]"
+              style={{ minHeight: 80 }}
             />
           </NeoCard>
 
-          <View className="pb-8">
+          <View style={{ paddingBottom: 32 }}>
             <NeoButton
               title={saving ? "Saving..." : isEditing ? "Update Reminder" : "Save Reminder"}
               onPress={handleSave}
