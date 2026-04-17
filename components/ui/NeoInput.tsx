@@ -18,7 +18,8 @@ export const NeoInput = React.memo(
       ref
     ) => {
       const { colorScheme } = useColorScheme();
-      const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+      const isDark = colorScheme === "dark";
+      const c = isDark ? Colors.dark : Colors.light;
       const [focused, setFocused] = useState(false);
 
       const handleFocus = useCallback(
@@ -40,8 +41,9 @@ export const NeoInput = React.memo(
       const borderColor = error
         ? c.danger
         : focused
-          ? c.navy
-          : c.border;
+          ? isDark ? "#3DD6A3" : c.navy
+          : isDark ? "#1E1E1E" : c.border;
+
       const borderWidth = focused && !error ? 1.5 : 1;
 
       return (
@@ -49,16 +51,25 @@ export const NeoInput = React.memo(
           {label && (
             <Text
               style={{
-                fontSize: Typography.base,
+                fontSize: Typography.sm,
                 fontWeight: "600",
-                color: c.textPrimary,
+                color: isDark ? "rgba(255,255,255,0.6)" : c.textSecondary,
                 marginBottom: 8,
+                letterSpacing: 0.3,
+                textTransform: "uppercase",
               }}
             >
               {label}
             </Text>
           )}
-          <View>
+          <View
+            style={{
+              shadowColor: focused ? (isDark ? "#3DD6A3" : c.navy) : "transparent",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: focused ? 0.2 : 0,
+              shadowRadius: 8,
+            }}
+          >
             <TextInput
               ref={ref}
               className={className}
@@ -67,16 +78,16 @@ export const NeoInput = React.memo(
                   minHeight: 56,
                   width: "100%",
                   paddingHorizontal: 16,
-                  borderRadius: R.md,
+                  borderRadius: R.lg,
                   borderWidth,
                   borderColor,
-                  backgroundColor: c.surface,
+                  backgroundColor: isDark ? "#0D0D0D" : c.surface,
                   fontSize: Typography.base,
                   color: c.textPrimary,
                 },
                 style,
               ]}
-              placeholderTextColor={c.textMuted}
+              placeholderTextColor={isDark ? "rgba(255,255,255,0.2)" : c.textMuted}
               onFocus={handleFocus}
               onBlur={handleBlur}
               {...props}
@@ -87,7 +98,7 @@ export const NeoInput = React.memo(
               style={{
                 fontSize: Typography.sm,
                 color: c.danger,
-                marginTop: 4,
+                marginTop: 6,
                 fontWeight: "500",
               }}
             >

@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useColorScheme } from "nativewind";
 import { NeoCard } from "@/components/ui/NeoCard";
 import { NeoToggle } from "@/components/ui/NeoToggle";
@@ -41,13 +42,13 @@ function getTimeGroup(timeStr: string): TimeGroup {
 function getGroupMeta(group: TimeGroup, t: (k: string) => string) {
   switch (group) {
     case "morning":
-      return { label: t("home.greetingMorning"), icon: "sunny-outline", range: "5 AM – 12 PM" };
+      return { label: t("home.greetingMorning"), icon: "sunny-outline", range: "5 AM – 12 PM", color: "#FBBF24" as string };
     case "afternoon":
-      return { label: t("home.greetingAfternoon"), icon: "partly-sunny-outline", range: "12 PM – 5 PM" };
+      return { label: t("home.greetingAfternoon"), icon: "partly-sunny-outline", range: "12 PM – 5 PM", color: "#F97316" as string };
     case "evening":
-      return { label: t("home.greetingEvening"), icon: "moon-outline", range: "5 PM – 9 PM" };
+      return { label: t("home.greetingEvening"), icon: "moon-outline", range: "5 PM – 9 PM", color: "#A594F9" as string };
     case "night":
-      return { label: t("reminders.later"), icon: "cloudy-night-outline", range: "9 PM – 5 AM" };
+      return { label: t("reminders.later"), icon: "cloudy-night-outline", range: "9 PM – 5 AM", color: "#60A5FA" as string };
   }
 }
 
@@ -86,104 +87,179 @@ const ReminderCard = React.memo(function ReminderCard({
         : "";
 
   return (
-    <NeoCard style={{ marginBottom: 16 }}>
-      <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <View style={{ flex: 1, marginRight: 12 }}>
-          <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.violet, lineHeight: 38 }}>
-            {formatTime(reminder.reminder_time)}
-          </Text>
-          <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginTop: 4 }}>
-            {reminder.medicine_name}
-          </Text>
-          <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
-            {formatDose(reminder.dose_amount, reminder.dose_unit)}
-            {reminder.notes ? ` · ${reminder.notes}` : ""}
-          </Text>
-        </View>
-        <NeoToggle
-          value={reminder.is_active}
-          onValueChange={(val) => onToggle(reminder.id, val)}
+    <View
+      style={{
+        borderRadius: R.xl,
+        borderWidth: 1,
+        borderColor: isDark ? "#1E1E1E" : c.border,
+        backgroundColor: isDark ? "#111111" : c.surface,
+        marginBottom: 14,
+        overflow: "hidden",
+      }}
+    >
+      {reminder.is_active && (
+        <LinearGradient
+          colors={["#3DD6A3", "#A594F9"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: 3,
+            bottom: 0,
+          }}
         />
-      </View>
-
-      {reminder.repeat_type === "specific_days" ? (
-        <View style={{ flexDirection: "row", marginTop: 16, gap: 8 }}>
-          {DAY_LABELS.map((label, index) => {
-            const isActive = reminder.days_of_week?.includes(index);
-            return (
-              <View
-                key={index}
+      )}
+      <View style={{ padding: S.base + 4, paddingLeft: reminder.is_active ? S.base + 10 : S.base + 4 }}>
+        <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginBottom: 4,
+              }}
+            >
+              <Text
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 18,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: isActive ? c.navy : (isDark ? Colors.dark.surface : "#F0F2F5"),
+                  fontSize: Typography.xxl,
+                  fontWeight: "700",
+                  color: isDark ? "#3DD6A3" : c.violet,
+                  lineHeight: 38,
+                  letterSpacing: -1,
                 }}
               >
-                <Text
+                {formatTime(reminder.reminder_time)}
+              </Text>
+            </View>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginTop: 2 }}>
+              {reminder.medicine_name}
+            </Text>
+            <Text style={{ fontSize: Typography.sm, color: c.textSecondary, marginTop: 4 }}>
+              {formatDose(reminder.dose_amount, reminder.dose_unit)}
+              {reminder.notes ? ` · ${reminder.notes}` : ""}
+            </Text>
+          </View>
+          <NeoToggle
+            value={reminder.is_active}
+            onValueChange={(val) => onToggle(reminder.id, val)}
+          />
+        </View>
+
+        {reminder.repeat_type === "specific_days" ? (
+          <View style={{ flexDirection: "row", marginTop: 14, gap: 6 }}>
+            {DAY_LABELS.map((label, index) => {
+              const isActive = reminder.days_of_week?.includes(index);
+              return (
+                <View
+                  key={index}
                   style={{
-                    fontSize: Typography.sm,
-                    fontWeight: "700",
-                    color: isActive ? "#FFFFFF" : c.textMuted,
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
                   }}
                 >
-                  {label}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
-      ) : (
-        <Text style={{ fontSize: Typography.sm, color: c.textMuted, marginTop: 12 }}>
-          {repeatLabel}
-        </Text>
-      )}
+                  {isActive ? (
+                    <LinearGradient
+                      colors={["#3DD6A3", "#A594F9"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "center" }}
+                    >
+                      <Text style={{ fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>
+                        {label}
+                      </Text>
+                    </LinearGradient>
+                  ) : (
+                    <View
+                      style={{
+                        flex: 1,
+                        width: "100%",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
+                      }}
+                    >
+                      <Text style={{ fontSize: 11, fontWeight: "600", color: c.textMuted }}>
+                        {label}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        ) : (
+          <View
+            style={{
+              marginTop: 12,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 3,
+                borderRadius: 6,
+                backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
+              }}
+            >
+              <Text style={{ fontSize: 11, fontWeight: "600", color: c.textMuted, letterSpacing: 0.3 }}>
+                {repeatLabel || "—"}
+              </Text>
+            </View>
+          </View>
+        )}
 
-      <View style={{ flexDirection: "row", marginTop: 16, gap: 12 }}>
-        <Pressable
-          onPress={() => onEdit(reminder)}
-          accessibilityLabel="Edit reminder"
-          accessibilityRole="button"
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            minHeight: 48,
-            paddingHorizontal: 16,
-            borderRadius: R.md,
-            borderWidth: 0.5,
-            borderColor: c.border,
-            backgroundColor: isDark ? Colors.dark.surface : "#F7F8FA",
-          }}
-        >
-          <Ionicons name="pencil-outline" size={20} color={c.textPrimary} />
-          <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.textPrimary, marginLeft: 8 }}>
-            {t("common.edit")}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => onDelete(reminder)}
-          accessibilityLabel="Delete reminder"
-          accessibilityRole="button"
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            minHeight: 48,
-            paddingHorizontal: 16,
-            borderRadius: R.md,
-            borderWidth: 0.5,
-            borderColor: isDark ? "rgba(240,149,149,0.3)" : "rgba(226,75,74,0.2)",
-            backgroundColor: isDark ? "rgba(240,149,149,0.08)" : "rgba(226,75,74,0.04)",
-          }}
-        >
-          <Ionicons name="trash-outline" size={20} color={c.danger} />
-          <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.danger, marginLeft: 8 }}>
-            {t("common.delete")}
-          </Text>
-        </Pressable>
+        <View style={{ flexDirection: "row", marginTop: 14, gap: 10 }}>
+          <Pressable
+            onPress={() => onEdit(reminder)}
+            accessibilityLabel="Edit reminder"
+            accessibilityRole="button"
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              minHeight: 42,
+              paddingHorizontal: 16,
+              borderRadius: R.md,
+              borderWidth: 1,
+              borderColor: isDark ? "#222222" : c.border,
+              backgroundColor: isDark ? "#0D0D0D" : "#F7F8FA",
+            }}
+          >
+            <Ionicons name="pencil-outline" size={16} color={isDark ? "rgba(255,255,255,0.5)" : c.textSecondary} />
+            <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: isDark ? "rgba(255,255,255,0.6)" : c.textPrimary, marginLeft: 6 }}>
+              {t("common.edit")}
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => onDelete(reminder)}
+            accessibilityLabel="Delete reminder"
+            accessibilityRole="button"
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              minHeight: 42,
+              paddingHorizontal: 16,
+              borderRadius: R.md,
+              borderWidth: 1,
+              borderColor: isDark ? "rgba(248,113,113,0.2)" : "rgba(226,75,74,0.15)",
+              backgroundColor: isDark ? "rgba(248,113,113,0.06)" : "rgba(226,75,74,0.04)",
+            }}
+          >
+            <Ionicons name="trash-outline" size={16} color={c.danger} />
+            <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.danger, marginLeft: 6 }}>
+              {t("common.delete")}
+            </Text>
+          </Pressable>
+        </View>
       </View>
-    </NeoCard>
+    </View>
   );
 });
 
@@ -258,7 +334,7 @@ export default function RemindersScreen() {
     setDeleteTarget(null);
   }, [deleteTarget, deleteReminder]);
 
-  const groupedSections: GroupedSection[] = useMemo(() => {
+  const groupedSections = useMemo(() => {
     const groups: Record<TimeGroup, Reminder[]> = {
       morning: [],
       afternoon: [],
@@ -285,7 +361,7 @@ export default function RemindersScreen() {
 
   const flatData = useMemo(() => {
     const items: Array<
-      | { type: "header"; key: string; label: string; icon: string; range: string; count: number }
+      | { type: "header"; key: string; label: string; icon: string; range: string; count: number; color: string }
       | { type: "reminder"; key: string; reminder: Reminder }
     > = [];
     for (const section of groupedSections) {
@@ -297,6 +373,7 @@ export default function RemindersScreen() {
         icon: meta.icon,
         range: meta.range,
         count: section.reminders.length,
+        color: meta.color,
       });
       for (const r of section.reminders) {
         items.push({ type: "reminder", key: r.id, reminder: r });
@@ -307,9 +384,9 @@ export default function RemindersScreen() {
 
   if (loading && reminders.length === 0) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color={c.navy} />
-        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#000" : c.bg, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" color={isDark ? "#3DD6A3" : c.navy} />
+        <Text style={{ fontSize: Typography.sm, color: c.textSecondary, marginTop: 16, fontWeight: "500" }}>
           {t("common.loading")}
         </Text>
       </SafeAreaView>
@@ -317,15 +394,16 @@ export default function RemindersScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#000000" : c.bg }}>
       <View style={{ flex: 1 }}>
-        <View style={{ paddingHorizontal: S.xl, paddingTop: 32, paddingBottom: 16 }}>
-          <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
+        {/* Header */}
+        <View style={{ paddingHorizontal: S.xl, paddingTop: 28, paddingBottom: 16 }}>
+          <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, letterSpacing: -0.5 }}>
             {t("reminders.title")}
           </Text>
-          <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
+          <Text style={{ fontSize: Typography.sm, color: isDark ? "rgba(255,255,255,0.35)" : c.textMuted, marginTop: 4, fontWeight: "500" }}>
             {reminders.length > 0
-              ? `${reminders.length} · ${t("reminders.all")}`
+              ? `${reminders.length} ${t("reminders.all")}`
               : t("reminders.emptyTitle")}
           </Text>
         </View>
@@ -337,19 +415,34 @@ export default function RemindersScreen() {
               marginBottom: 16,
               padding: S.base,
               borderRadius: R.lg,
-              backgroundColor: isDark ? "rgba(240,149,149,0.08)" : "rgba(226,75,74,0.04)",
-              borderWidth: 0.5,
-              borderColor: isDark ? "rgba(240,149,149,0.3)" : "rgba(226,75,74,0.2)",
+              backgroundColor: isDark ? "rgba(248,113,113,0.06)" : "rgba(226,75,74,0.04)",
+              borderWidth: 1,
+              borderColor: isDark ? "rgba(248,113,113,0.2)" : "rgba(226,75,74,0.15)",
             }}
           >
-            <Text style={{ fontSize: Typography.base, color: c.danger, fontWeight: "500" }}>{error}</Text>
+            <Text style={{ fontSize: Typography.sm, color: c.danger, fontWeight: "500" }}>{error}</Text>
           </View>
         )}
 
         {reminders.length === 0 && !loading ? (
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
-            <Text style={{ fontSize: 64, marginBottom: 24 }}>💊</Text>
-            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, textAlign: "center", marginBottom: 12 }}>
+            <View
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 28,
+                overflow: "hidden",
+                marginBottom: 24,
+              }}
+            >
+              <LinearGradient
+                colors={isDark ? ["#1A1A1A", "#111111"] : ["#F0F2F5", "#E8ECF2"]}
+                style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+              >
+                <Text style={{ fontSize: 48 }}>💊</Text>
+              </LinearGradient>
+            </View>
+            <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, textAlign: "center", marginBottom: 10 }}>
               {t("reminders.emptyTitle")}
             </Text>
             <Text
@@ -365,45 +458,75 @@ export default function RemindersScreen() {
             </Text>
             <Pressable
               onPress={() => router.push("/reminder/add")}
-              style={{
-                minHeight: 56,
-                paddingHorizontal: 32,
-                borderRadius: R.md,
-                backgroundColor: c.navy,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              style={{ borderRadius: R.lg, overflow: "hidden" }}
             >
-              <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textOnNavy }}>
-                {t("reminders.firstReminder")}
-              </Text>
+              <LinearGradient
+                colors={["#3DD6A3", "#A594F9"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{
+                  minHeight: 52,
+                  paddingHorizontal: 32,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: Typography.base, fontWeight: "700", color: "#FFFFFF" }}>
+                  {t("reminders.firstReminder")}
+                </Text>
+              </LinearGradient>
             </Pressable>
           </View>
         ) : (
           <FlatList
             data={flatData}
             keyExtractor={(item) => item.key}
-            contentContainerStyle={{ paddingHorizontal: S.xl, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: S.xl, paddingBottom: 110 }}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                tintColor={isDark ? "#3DD6A3" : c.navy}
+              />
             }
             initialNumToRender={10}
             maxToRenderPerBatch={8}
             renderItem={({ item }) => {
               if (item.type === "header") {
                 return (
-                  <View style={{ flexDirection: "row", alignItems: "center", marginTop: 16, marginBottom: 12 }}>
-                    <Ionicons
-                      name={item.icon as keyof typeof Ionicons.glyphMap}
-                      size={22}
-                      color={c.textSecondary}
-                    />
-                    <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginLeft: 8, flex: 1 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", marginTop: 20, marginBottom: 12 }}>
+                    <View
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 8,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
+                        marginRight: 10,
+                      }}
+                    >
+                      <Ionicons
+                        name={item.icon as keyof typeof Ionicons.glyphMap}
+                        size={18}
+                        color={item.color}
+                      />
+                    </View>
+                    <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary, flex: 1 }}>
                       {item.label}
                     </Text>
-                    <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>
-                      {item.range}
-                    </Text>
+                    <View
+                      style={{
+                        paddingHorizontal: 8,
+                        paddingVertical: 3,
+                        borderRadius: 6,
+                        backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
+                      }}
+                    >
+                      <Text style={{ fontSize: 11, color: c.textMuted, fontWeight: "600" }}>
+                        {item.range}
+                      </Text>
+                    </View>
                   </View>
                 );
               }
@@ -429,21 +552,30 @@ export default function RemindersScreen() {
             position: "absolute",
             bottom: 24,
             right: 24,
-            width: 64,
-            height: 64,
-            borderRadius: R.lg,
-            backgroundColor: c.navy,
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: pressed ? 0.8 : 1,
-            elevation: 8,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 6,
+            width: 60,
+            height: 60,
+            borderRadius: 18,
+            overflow: "hidden",
+            opacity: pressed ? 0.85 : 1,
+            shadowColor: "#3DD6A3",
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.35,
+            shadowRadius: 14,
+            elevation: 10,
           })}
         >
-          <Ionicons name="add" size={32} color={c.textOnNavy} />
+          <LinearGradient
+            colors={["#3DD6A3", "#A594F9"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons name="add" size={28} color="#FFFFFF" />
+          </LinearGradient>
         </Pressable>
       </View>
 

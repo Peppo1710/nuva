@@ -1,5 +1,6 @@
 import { Modal, View, Text, Pressable } from "react-native";
 import { useColorScheme } from "nativewind";
+import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/colors";
 import { Typography, R, S } from "@/constants/typography";
 
@@ -25,33 +26,49 @@ export function ConfirmDialog({
   destructive = false,
 }: ConfirmDialogProps) {
   const { colorScheme } = useColorScheme();
-  const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const isDark = colorScheme === "dark";
+  const c = isDark ? Colors.dark : Colors.light;
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View
         style={{
           flex: 1,
-          backgroundColor: "rgba(0,0,0,0.5)",
+          backgroundColor: "rgba(0,0,0,0.7)",
           justifyContent: "center",
           paddingHorizontal: 24,
         }}
       >
         <View
           style={{
-            backgroundColor: c.surface,
-            borderRadius: R.lg,
+            backgroundColor: isDark ? "#0F0F0F" : c.surface,
+            borderRadius: R.xl,
             padding: S.xl,
-            borderWidth: 0.5,
-            borderColor: c.border,
+            borderWidth: 1,
+            borderColor: isDark ? "#1A1A1A" : c.border,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 16 },
+            shadowOpacity: 0.5,
+            shadowRadius: 32,
+            elevation: 20,
           }}
         >
+          {/* Accent line */}
+          <View style={{ width: 32, height: 3, borderRadius: 2, overflow: "hidden", marginBottom: 16 }}>
+            <LinearGradient
+              colors={destructive ? ["#F87171", "#EF4444"] : ["#3DD6A3", "#A594F9"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ flex: 1 }}
+            />
+          </View>
+
           <Text
             style={{
-              fontSize: Typography.lg,
+              fontSize: Typography.md,
               fontWeight: "700",
               color: c.textPrimary,
-              marginBottom: 12,
+              marginBottom: 10,
             }}
           >
             {title}
@@ -66,25 +83,25 @@ export function ConfirmDialog({
           >
             {message}
           </Text>
-          <View style={{ flexDirection: "row", gap: 12 }}>
+          <View style={{ flexDirection: "row", gap: 10 }}>
             <Pressable
               onPress={onCancel}
               style={{
                 flex: 1,
-                minHeight: 56,
+                minHeight: 52,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: R.md,
-                backgroundColor: "transparent",
-                borderWidth: 1.5,
-                borderColor: c.navy,
+                borderRadius: R.lg,
+                backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
+                borderWidth: 1,
+                borderColor: isDark ? "#222" : c.border,
               }}
             >
               <Text
                 style={{
                   fontSize: Typography.base,
                   fontWeight: "600",
-                  color: c.navy,
+                  color: c.textSecondary,
                 }}
               >
                 {cancelText}
@@ -94,22 +111,31 @@ export function ConfirmDialog({
               onPress={onConfirm}
               style={{
                 flex: 1,
-                minHeight: 56,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: R.md,
-                backgroundColor: destructive ? c.danger : c.navy,
+                minHeight: 52,
+                borderRadius: R.lg,
+                overflow: "hidden",
               }}
             >
-              <Text
+              <LinearGradient
+                colors={destructive ? ["#F87171", "#EF4444"] : ["#3DD6A3", "#A594F9"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
                 style={{
-                  fontSize: Typography.base,
-                  fontWeight: "600",
-                  color: "#FFFFFF",
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                {confirmText}
-              </Text>
+                <Text
+                  style={{
+                    fontSize: Typography.base,
+                    fontWeight: "700",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  {confirmText}
+                </Text>
+              </LinearGradient>
             </Pressable>
           </View>
         </View>

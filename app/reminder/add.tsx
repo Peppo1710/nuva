@@ -11,6 +11,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useColorScheme } from "nativewind";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
 import { NeoCard } from "@/components/ui/NeoCard";
@@ -144,7 +146,7 @@ export default function AddReminderScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#000000" : c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -155,20 +157,20 @@ export default function AddReminderScreen() {
             accessibilityLabel="Go back"
             accessibilityRole="button"
             style={{
-              minWidth: 56,
-              minHeight: 56,
-              borderRadius: R.md,
-              borderWidth: 0.5,
-              borderColor: c.border,
-              backgroundColor: c.surface,
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: isDark ? "#1E1E1E" : c.border,
+              backgroundColor: isDark ? "#111111" : c.surface,
               alignItems: "center",
               justifyContent: "center",
-              marginRight: 16,
+              marginRight: 14,
             }}
           >
-            <Text style={{ fontSize: Typography.xl, color: c.textPrimary }}>←</Text>
+            <Ionicons name="arrow-back" size={20} color={isDark ? "rgba(255,255,255,0.7)" : c.textPrimary} />
           </Pressable>
-          <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary, flex: 1 }}>
+          <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary, flex: 1, letterSpacing: -0.3 }}>
             {isEditing ? t("reminderAdd.editTitle") : t("reminderAdd.title")}
           </Text>
         </View>
@@ -238,73 +240,71 @@ export default function AddReminderScreen() {
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
               {t("reminderAdd.dose")}
             </Text>
-            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}>
               <Pressable
                 onPress={() => setDoseAmount(Math.max(0.5, doseAmount - 0.5))}
                 style={{
-                  minWidth: 56,
-                  minHeight: 56,
-                  borderRadius: R.md,
-                  borderWidth: 0.5,
-                  borderColor: c.border,
-                  backgroundColor: c.surface,
+                  width: 52,
+                  height: 52,
+                  borderRadius: 14,
+                  borderWidth: 1,
+                  borderColor: isDark ? "#222" : c.border,
+                  backgroundColor: isDark ? "#0D0D0D" : c.surface,
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
-                  −
-                </Text>
+                <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>−</Text>
               </Pressable>
               <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginHorizontal: 16 }}>
-                <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary }}>
+                <Text style={{ fontSize: Typography.xxl + 4, fontWeight: "700", color: isDark ? "#3DD6A3" : c.navy }}>
                   {doseAmount % 1 === 0 ? doseAmount.toFixed(0) : doseAmount.toFixed(1)}
                 </Text>
               </View>
               <Pressable
                 onPress={() => setDoseAmount(doseAmount + 0.5)}
                 style={{
-                  minWidth: 56,
-                  minHeight: 56,
-                  borderRadius: R.md,
-                  borderWidth: 0.5,
-                  borderColor: c.border,
-                  backgroundColor: c.surface,
-                  alignItems: "center",
-                  justifyContent: "center",
+                  width: 52,
+                  height: 52,
+                  borderRadius: 14,
+                  overflow: "hidden",
                 }}
               >
-                <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
-                  +
-                </Text>
+                <LinearGradient
+                  colors={["#3DD6A3", "#2BC48A"]}
+                  style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+                >
+                  <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: "#FFFFFF" }}>+</Text>
+                </LinearGradient>
               </Pressable>
             </View>
-            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
               {DOSE_UNITS.map((unit) => (
                 <Pressable
                   key={unit}
                   onPress={() => setDoseUnit(unit)}
                   style={{
-                    paddingHorizontal: 20,
-                    paddingVertical: 12,
-                    marginRight: 12,
-                    marginBottom: 8,
+                    paddingHorizontal: 16,
+                    paddingVertical: 10,
                     borderRadius: R.md,
-                    borderWidth: doseUnit === unit ? 1.5 : 0.5,
-                    minHeight: 48,
+                    minHeight: 44,
                     alignItems: "center",
                     justifyContent: "center",
-                    borderColor: doseUnit === unit ? c.navy : c.border,
+                    overflow: "hidden",
+                    borderWidth: 1,
+                    borderColor: doseUnit === unit
+                      ? (isDark ? "rgba(61,214,163,0.4)" : c.navy)
+                      : isDark ? "#1E1E1E" : c.border,
                     backgroundColor: doseUnit === unit
-                      ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)")
-                      : c.surface,
+                      ? (isDark ? "rgba(61,214,163,0.1)" : "rgba(26,39,68,0.06)")
+                      : isDark ? "#0D0D0D" : c.surface,
                   }}
                 >
                   <Text
                     style={{
-                      fontSize: Typography.base,
+                      fontSize: Typography.sm,
                       fontWeight: "600",
-                      color: doseUnit === unit ? c.navy : c.textPrimary,
+                      color: doseUnit === unit ? (isDark ? "#3DD6A3" : c.navy) : c.textPrimary,
                     }}
                   >
                     {t(`reminderAdd.units.${unit}`)}
@@ -321,75 +321,72 @@ export default function AddReminderScreen() {
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
               <View style={{ alignItems: "center" }}>
-                <Pressable
-                  onPress={() => setHour((h) => (h + 1) % 24)}
-                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
-                >
-                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▲</Text>
+                <Pressable onPress={() => setHour((h) => (h + 1) % 24)} style={{ width: 64, height: 40, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="chevron-up" size={20} color={isDark ? "rgba(255,255,255,0.4)" : c.textMuted} />
                 </Pressable>
                 <View
                   style={{
-                    minWidth: 80,
-                    minHeight: 64,
+                    width: 80,
+                    height: 72,
                     borderRadius: R.lg,
-                    borderWidth: 0.5,
-                    borderColor: c.border,
-                    backgroundColor: c.surface,
+                    borderWidth: 1,
+                    borderColor: isDark ? "rgba(61,214,163,0.2)" : c.border,
+                    backgroundColor: isDark ? "#0D0D0D" : c.surface,
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.violet }}>
+                  <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: isDark ? "#3DD6A3" : c.violet }}>
                     {hour.toString().padStart(2, "0")}
                   </Text>
                 </View>
-                <Pressable
-                  onPress={() => setHour((h) => (h - 1 + 24) % 24)}
-                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
-                >
-                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▼</Text>
+                <Pressable onPress={() => setHour((h) => (h - 1 + 24) % 24)} style={{ width: 64, height: 40, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="chevron-down" size={20} color={isDark ? "rgba(255,255,255,0.4)" : c.textMuted} />
                 </Pressable>
               </View>
 
-              <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary, marginHorizontal: 12 }}>
+              <Text style={{ fontSize: Typography.xxl + 4, fontWeight: "700", color: isDark ? "rgba(255,255,255,0.3)" : c.textMuted, marginHorizontal: 10 }}>
                 :
               </Text>
 
               <View style={{ alignItems: "center" }}>
-                <Pressable
-                  onPress={() => setMinute((m) => (m + 5) % 60)}
-                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
-                >
-                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▲</Text>
+                <Pressable onPress={() => setMinute((m) => (m + 5) % 60)} style={{ width: 64, height: 40, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="chevron-up" size={20} color={isDark ? "rgba(255,255,255,0.4)" : c.textMuted} />
                 </Pressable>
                 <View
                   style={{
-                    minWidth: 80,
-                    minHeight: 64,
+                    width: 80,
+                    height: 72,
                     borderRadius: R.lg,
-                    borderWidth: 0.5,
-                    borderColor: c.border,
-                    backgroundColor: c.surface,
+                    borderWidth: 1,
+                    borderColor: isDark ? "rgba(165,148,249,0.2)" : c.border,
+                    backgroundColor: isDark ? "#0D0D0D" : c.surface,
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.violet }}>
+                  <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: isDark ? "#A594F9" : c.violet }}>
                     {minute.toString().padStart(2, "0")}
                   </Text>
                 </View>
-                <Pressable
-                  onPress={() => setMinute((m) => (m - 5 + 60) % 60)}
-                  style={{ minWidth: 56, minHeight: 48, alignItems: "center", justifyContent: "center" }}
-                >
-                  <Text style={{ fontSize: Typography.lg, color: c.textPrimary }}>▼</Text>
+                <Pressable onPress={() => setMinute((m) => (m - 5 + 60) % 60)} style={{ width: 64, height: 40, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons name="chevron-down" size={20} color={isDark ? "rgba(255,255,255,0.4)" : c.textMuted} />
                 </Pressable>
               </View>
 
               <View style={{ marginLeft: 16, alignItems: "center", justifyContent: "center" }}>
-                <Text style={{ fontSize: Typography.md, fontWeight: "600", color: c.textSecondary }}>
-                  {formatTime(hour, minute)}
-                </Text>
+                <View
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: R.md,
+                    backgroundColor: isDark ? "rgba(61,214,163,0.08)" : "rgba(26,39,68,0.06)",
+                  }}
+                >
+                  <Text style={{ fontSize: Typography.base, fontWeight: "700", color: isDark ? "#3DD6A3" : c.navy }}>
+                    {formatTime(hour, minute)}
+                  </Text>
+                </View>
               </View>
             </View>
           </NeoCard>
@@ -405,28 +402,58 @@ export default function AddReminderScreen() {
                 onPress={() => setRepeatType(option.value)}
                 style={{
                   padding: S.base,
-                  marginBottom: 12,
+                  marginBottom: 10,
                   borderRadius: R.lg,
-                  borderWidth: repeatType === option.value ? 1.5 : 0.5,
-                  minHeight: 56,
-                  borderColor: repeatType === option.value ? c.navy : c.border,
+                  borderWidth: 1,
+                  minHeight: 60,
+                  borderColor: repeatType === option.value
+                    ? (isDark ? "rgba(61,214,163,0.4)" : c.navy)
+                    : isDark ? "#1E1E1E" : c.border,
                   backgroundColor: repeatType === option.value
-                    ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)")
-                    : c.surface,
+                    ? (isDark ? "rgba(61,214,163,0.06)" : "rgba(26,39,68,0.04)")
+                    : isDark ? "#0D0D0D" : c.surface,
+                  flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
-                <Text
+                <View
                   style={{
-                    fontSize: Typography.base,
-                    fontWeight: "700",
-                    color: repeatType === option.value ? c.navy : c.textPrimary,
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: repeatType === option.value
+                      ? (isDark ? "#3DD6A3" : c.navy)
+                      : isDark ? "#333" : c.border,
+                    backgroundColor: repeatType === option.value
+                      ? (isDark ? "#3DD6A3" : c.navy)
+                      : "transparent",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: 14,
+                    flexShrink: 0,
                   }}
                 >
-                  {t(option.labelKey)}
-                </Text>
-                <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
-                  {t(option.descKey)}
-                </Text>
+                  {repeatType === option.value && (
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "#FFFFFF" }} />
+                  )}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      fontSize: Typography.base,
+                      fontWeight: "700",
+                      color: repeatType === option.value
+                        ? (isDark ? "#3DD6A3" : c.navy)
+                        : c.textPrimary,
+                    }}
+                  >
+                    {t(option.labelKey)}
+                  </Text>
+                  <Text style={{ fontSize: Typography.sm, color: c.textSecondary, marginTop: 2 }}>
+                    {t(option.descKey)}
+                  </Text>
+                </View>
               </Pressable>
             ))}
 
@@ -435,35 +462,49 @@ export default function AddReminderScreen() {
                 <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textPrimary, marginBottom: 12 }}>
                   {t("reminderAdd.selectDays")}
                 </Text>
-                <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                   {DAY_KEYS.map((dayKey, index) => (
                     <Pressable
                       key={index}
                       onPress={() => toggleDay(index)}
                       style={{
-                        minWidth: 56,
-                        minHeight: 56,
-                        borderRadius: R.md,
+                        width: 44,
+                        height: 44,
+                        borderRadius: 12,
                         alignItems: "center",
                         justifyContent: "center",
-                        marginRight: 8,
-                        marginBottom: 8,
-                        borderWidth: 0.5,
-                        borderColor: daysOfWeek.includes(index) ? c.navy : c.border,
-                        backgroundColor: daysOfWeek.includes(index)
-                          ? c.navy
-                          : c.surface,
+                        overflow: "hidden",
                       }}
                     >
-                      <Text
-                        style={{
-                          fontSize: Typography.base,
-                          fontWeight: "700",
-                          color: daysOfWeek.includes(index) ? "#FFFFFF" : c.textPrimary,
-                        }}
-                      >
-                        {t(`reminderAdd.days.${dayKey}`)}
-                      </Text>
+                      {daysOfWeek.includes(index) ? (
+                        <LinearGradient
+                          colors={["#3DD6A3", "#A594F9"]}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 1 }}
+                          style={{ flex: 1, width: "100%", alignItems: "center", justifyContent: "center" }}
+                        >
+                          <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: "#FFFFFF" }}>
+                            {t(`reminderAdd.days.${dayKey}`)}
+                          </Text>
+                        </LinearGradient>
+                      ) : (
+                        <View
+                          style={{
+                            flex: 1,
+                            width: "100%",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderWidth: 1,
+                            borderColor: isDark ? "#222" : c.border,
+                            borderRadius: 12,
+                            backgroundColor: isDark ? "#0D0D0D" : c.surface,
+                          }}
+                        >
+                          <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.textMuted }}>
+                            {t(`reminderAdd.days.${dayKey}`)}
+                          </Text>
+                        </View>
+                      )}
                     </Pressable>
                   ))}
                 </View>

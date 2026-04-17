@@ -28,7 +28,7 @@ export default function AgeScreen() {
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const t = useT();
   const { age, setProfile } = useProfileStore();
-  const [selectedAge, setSelectedAge] = useState(age ?? 25);
+  const [selectedAge, setSelectedAge] = useState(age ?? 10);
   const flatListRef = useRef<FlatList>(null);
   const hasScrolledInitial = useRef(false);
 

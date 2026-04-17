@@ -9,6 +9,8 @@ import {
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "nativewind";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { useProfileStore } from "@/store/profileStore";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoInput } from "@/components/ui/NeoInput";
@@ -37,8 +39,10 @@ export default function NameScreen() {
     router.push("/onboarding/age");
   };
 
+  const isDark = colorScheme === "dark";
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#000000" : c.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -49,20 +53,17 @@ export default function NameScreen() {
             style={{
               alignSelf: "flex-start",
               marginBottom: 24,
-              minWidth: 56,
-              minHeight: 56,
+              width: 44,
+              height: 44,
+              borderRadius: 12,
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: R.md,
-              borderWidth: 0.5,
-              borderColor: c.border,
-              paddingHorizontal: 16,
-              backgroundColor: c.surface,
+              borderWidth: 1,
+              borderColor: isDark ? "#1E1E1E" : c.border,
+              backgroundColor: isDark ? "#111111" : c.surface,
             }}
           >
-            <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
-              ← {t("common.back")}
-            </Text>
+            <Ionicons name="arrow-back" size={20} color={isDark ? "rgba(255,255,255,0.7)" : c.textPrimary} />
           </Pressable>
 
           <ProgressBar currentStep={1} totalSteps={3} />

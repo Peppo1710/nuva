@@ -14,6 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useCallback } from "react";
 import { useColorScheme } from "nativewind";
+import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import api from "@/lib/api";
 import { Colors } from "@/constants/colors";
@@ -37,6 +38,13 @@ interface PendingImage {
 
 const QUICK_PROMPT_KEYS = ["scan", "interaction", "headache", "myMeds"] as const;
 
+const QUICK_PROMPT_COLORS: Record<string, [string, string]> = {
+  scan: ["#3DD6A3", "#2BC48A"],
+  interaction: ["#A594F9", "#7C6FEF"],
+  headache: ["#F87171", "#EF4444"],
+  myMeds: ["#60A5FA", "#3B82F6"],
+};
+
 export default function ChatScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -45,8 +53,7 @@ export default function ChatScreen() {
   const language = useProfileStore((s) => s.language);
   const voice = useVoiceInput();
   const insets = useSafeAreaInsets();
-  // Tab bar height declared in _layout.tsx is 60 + insets.bottom
-  const TAB_BAR_HEIGHT = 60 + insets.bottom;
+  const TAB_BAR_HEIGHT = 64 + insets.bottom;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -243,66 +250,104 @@ export default function ChatScreen() {
           {!isUser && (
             <View
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
-                backgroundColor: c.navy,
-                alignItems: "center",
-                justifyContent: "center",
-                marginRight: 8,
-                marginTop: 4,
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                overflow: "hidden",
+                marginRight: 10,
+                marginTop: 2,
               }}
             >
-              <Text style={{ color: c.textOnNavy, fontSize: Typography.xs, fontWeight: "700" }}>AI</Text>
+              <LinearGradient
+                colors={["#3DD6A3", "#A594F9"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+              >
+                <Text style={{ fontSize: 16 }}>✦</Text>
+              </LinearGradient>
             </View>
           )}
-          <View
-            style={{
-              maxWidth: "78%",
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              borderRadius: R.lg,
-              backgroundColor: isUser ? c.navy : c.surface,
-              borderWidth: isUser ? 0 : 0.5,
-              borderColor: isUser ? undefined : c.border,
-              borderTopRightRadius: isUser ? 4 : R.lg,
-              borderTopLeftRadius: isUser ? R.lg : 4,
-            }}
-          >
+          <View style={{ maxWidth: "78%" }}>
             {item.imageUri && (
               <Image
                 source={{ uri: item.imageUri }}
-                style={{ width: 200, height: 150, borderRadius: R.md, marginBottom: 8 }}
+                style={{
+                  width: 200,
+                  height: 150,
+                  borderRadius: R.lg,
+                  marginBottom: 6,
+                  borderWidth: 1,
+                  borderColor: isDark ? "#222" : c.border,
+                }}
                 resizeMode="cover"
               />
             )}
-            {item.loading ? (
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <ActivityIndicator size="small" color={c.navy} />
-                <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>{t("chat.thinking")}</Text>
+            {isUser ? (
+              <View style={{ overflow: "hidden", borderRadius: R.lg }}>
+                <LinearGradient
+                  colors={["#3DD6A3", "#A594F9"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    paddingHorizontal: 16,
+                    paddingVertical: 12,
+                    borderTopRightRadius: 4,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: Typography.base,
+                      lineHeight: 24,
+                      color: "#FFFFFF",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {item.content}
+                  </Text>
+                </LinearGradient>
               </View>
             ) : (
-              <Text
+              <View
                 style={{
-                  fontSize: Typography.base,
-                  lineHeight: 24,
-                  color: isUser ? c.textOnNavy : c.textPrimary,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  borderRadius: R.lg,
+                  borderTopLeftRadius: 4,
+                  backgroundColor: isDark ? "#111111" : c.surface,
+                  borderWidth: 1,
+                  borderColor: isDark ? "#1E1E1E" : c.border,
                 }}
               >
-                {item.content}
-              </Text>
+                {item.loading ? (
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <ActivityIndicator size="small" color={isDark ? "#3DD6A3" : c.navy} />
+                    <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>{t("chat.thinking")}</Text>
+                  </View>
+                ) : (
+                  <Text
+                    style={{
+                      fontSize: Typography.base,
+                      lineHeight: 24,
+                      color: c.textPrimary,
+                    }}
+                  >
+                    {item.content}
+                  </Text>
+                )}
+              </View>
             )}
           </View>
         </View>
       );
     },
-    [c, t]
+    [c, t, isDark]
   );
 
   const canSend = (inputText.trim().length > 0 || pendingImage !== null) && !isSending;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#000000" : c.bg }} edges={["top"]}>
       <KeyboardAvoidingView
         behavior="padding"
         style={{ flex: 1 }}
@@ -312,22 +357,43 @@ export default function ChatScreen() {
         <View
           style={{
             paddingHorizontal: S.xl,
-            paddingTop: 8,
-            paddingBottom: 12,
-            borderBottomWidth: 0.5,
-            borderBottomColor: c.border,
+            paddingTop: 12,
+            paddingBottom: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: isDark ? "#111111" : c.border,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
+            backgroundColor: isDark ? "#000000" : c.bg,
           }}
         >
-          <View>
-            <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary }}>
-              {t("chat.title")}
-            </Text>
-            <Text style={{ fontSize: Typography.sm, color: c.textSecondary }}>
-              {t("chat.subtitle")}
-            </Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 11,
+                overflow: "hidden",
+                marginRight: 12,
+              }}
+            >
+              <LinearGradient
+                colors={["#3DD6A3", "#A594F9"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+              >
+                <Text style={{ fontSize: 20 }}>✦</Text>
+              </LinearGradient>
+            </View>
+            <View>
+              <Text style={{ fontSize: Typography.base + 1, fontWeight: "700", color: c.textPrimary }}>
+                {t("chat.title")}
+              </Text>
+              <Text style={{ fontSize: Typography.sm - 1, color: isDark ? "#3DD6A3" : c.teal, fontWeight: "600" }}>
+                {t("chat.subtitle")}
+              </Text>
+            </View>
           </View>
 
           <Pressable
@@ -335,54 +401,96 @@ export default function ChatScreen() {
             style={{
               width: 38,
               height: 38,
-              borderRadius: 19,
-              backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(26,39,68,0.06)",
+              borderRadius: 11,
+              backgroundColor: isDark ? "#111111" : "#F0F2F5",
               alignItems: "center",
               justifyContent: "center",
+              borderWidth: 1,
+              borderColor: isDark ? "#1E1E1E" : c.border,
             }}
             hitSlop={8}
           >
-            <Ionicons name="add" size={24} color={c.navy} />
+            <Ionicons name="add" size={20} color={isDark ? "rgba(255,255,255,0.6)" : c.navy} />
           </Pressable>
         </View>
 
         {/* Messages or Quick Prompts */}
         {messages.length === 0 ? (
-          <View style={{ flex: 1, paddingHorizontal: S.base, paddingTop: S.base }}>
-            <Text
-              style={{
-                fontSize: Typography.sm,
-                fontWeight: "600",
-                color: c.textSecondary,
-                marginBottom: 12,
-                paddingHorizontal: 8,
-              }}
-            >
-              {t("chat.quickStart")}
-            </Text>
-            <View style={{ gap: 12 }}>
+          <View style={{ flex: 1, paddingHorizontal: S.base, paddingTop: S.xl }}>
+            <View style={{ alignItems: "center", marginBottom: S.xl }}>
+              <View
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: 22,
+                  overflow: "hidden",
+                  marginBottom: 16,
+                  shadowColor: "#3DD6A3",
+                  shadowOffset: { width: 0, height: 6 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 16,
+                  elevation: 8,
+                }}
+              >
+                <LinearGradient
+                  colors={["#3DD6A3", "#A594F9"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+                >
+                  <Text style={{ fontSize: 32 }}>✦</Text>
+                </LinearGradient>
+              </View>
+              <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, textAlign: "center" }}>
+                AI Health Assistant
+              </Text>
+              <Text style={{ fontSize: Typography.sm, color: c.textSecondary, textAlign: "center", marginTop: 4 }}>
+                {t("chat.quickStart")}
+              </Text>
+            </View>
+
+            <View style={{ gap: 10 }}>
               {QUICK_PROMPT_KEYS.map((key) => {
                 const promptText = t(`chat.prompts.${key}`);
                 const promptIcon = t(`chat.promptIcons.${key}`);
+                const colors = QUICK_PROMPT_COLORS[key];
                 return (
                   <Pressable
                     key={key}
                     onPress={() => handleQuickPrompt(promptText)}
                     style={{
-                      padding: S.base,
                       borderRadius: R.lg,
-                      borderWidth: 0.5,
-                      borderColor: c.border,
-                      backgroundColor: c.surface,
+                      borderWidth: 1,
+                      borderColor: isDark ? "#1E1E1E" : c.border,
+                      backgroundColor: isDark ? "#0D0D0D" : c.surface,
                       flexDirection: "row",
                       alignItems: "center",
+                      padding: S.base,
+                      overflow: "hidden",
                     }}
                   >
-                    <Text style={{ fontSize: Typography.md, marginRight: 12 }}>{promptIcon}</Text>
+                    <View
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        overflow: "hidden",
+                        marginRight: 12,
+                      }}
+                    >
+                      <LinearGradient
+                        colors={colors}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+                      >
+                        <Text style={{ fontSize: 18 }}>{promptIcon}</Text>
+                      </LinearGradient>
+                    </View>
                     <Text style={{ fontSize: Typography.base, color: c.textPrimary, fontWeight: "500", flex: 1 }}>
                       {promptText}
                     </Text>
-                    <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
+                    <Ionicons name="chevron-forward" size={16} color={isDark ? "rgba(255,255,255,0.2)" : c.textMuted} />
                   </Pressable>
                 );
               })}
@@ -394,7 +502,7 @@ export default function ChatScreen() {
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={renderMessage}
-            style={{ flex: 1 }}
+            style={{ flex: 1, backgroundColor: isDark ? "#000000" : c.bg }}
             contentContainerStyle={{ paddingTop: 16, paddingBottom: 8 }}
             onContentSizeChange={scrollToBottom}
           />
@@ -406,15 +514,15 @@ export default function ChatScreen() {
             paddingHorizontal: S.base,
             paddingTop: 12,
             paddingBottom: 12 + insets.bottom,
-            borderTopWidth: 0.5,
-            borderTopColor: c.border,
-            backgroundColor: c.bg,
+            borderTopWidth: 1,
+            borderTopColor: isDark ? "#111111" : c.border,
+            backgroundColor: isDark ? "#000000" : c.bg,
           }}
         >
           {(voice.isRecording || voice.isTranscribing) && (
             <View
               style={{
-                marginBottom: 8,
+                marginBottom: 10,
                 alignSelf: "flex-start",
                 flexDirection: "row",
                 alignItems: "center",
@@ -422,30 +530,38 @@ export default function ChatScreen() {
                 paddingVertical: 6,
                 borderRadius: 999,
                 backgroundColor: voice.isRecording
-                  ? (isDark ? "rgba(248,113,113,0.15)" : "rgba(226,75,74,0.08)")
-                  : (isDark ? "rgba(255,255,255,0.05)" : "rgba(26,39,68,0.05)"),
+                  ? "rgba(248,113,113,0.12)"
+                  : isDark ? "#111111" : "#F0F2F5",
+                borderWidth: 1,
+                borderColor: voice.isRecording ? "rgba(248,113,113,0.3)" : "transparent",
               }}
             >
               <View
                 style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 4,
+                  width: 6,
+                  height: 6,
+                  borderRadius: 3,
                   backgroundColor: voice.isRecording ? c.danger : c.textSecondary,
                   marginRight: 8,
                 }}
               />
-              <Text style={{ fontSize: Typography.sm, color: c.textPrimary, fontWeight: "500" }}>
+              <Text style={{ fontSize: Typography.sm, color: c.textPrimary, fontWeight: "600" }}>
                 {voice.isRecording ? t("chat.listening") : t("chat.transcribing")}
               </Text>
             </View>
           )}
 
           {pendingImage && (
-            <View style={{ marginBottom: 8, alignSelf: "flex-start", position: "relative" }}>
+            <View style={{ marginBottom: 10, alignSelf: "flex-start", position: "relative" }}>
               <Image
                 source={{ uri: pendingImage.uri }}
-                style={{ width: 80, height: 80, borderRadius: R.md }}
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: R.lg,
+                  borderWidth: 1,
+                  borderColor: isDark ? "#222" : c.border,
+                }}
                 resizeMode="cover"
               />
               <Pressable
@@ -460,10 +576,12 @@ export default function ChatScreen() {
                   backgroundColor: c.danger,
                   alignItems: "center",
                   justifyContent: "center",
+                  borderWidth: 1.5,
+                  borderColor: isDark ? "#000" : "#fff",
                 }}
                 hitSlop={6}
               >
-                <Ionicons name="close" size={14} color="#FFFFFF" />
+                <Ionicons name="close" size={12} color="#FFFFFF" />
               </Pressable>
             </View>
           )}
@@ -472,12 +590,12 @@ export default function ChatScreen() {
             style={{
               flexDirection: "row",
               alignItems: "flex-end",
-              backgroundColor: c.surface,
-              borderRadius: 24,
-              paddingHorizontal: 12,
+              backgroundColor: isDark ? "#0D0D0D" : c.surface,
+              borderRadius: 20,
+              paddingHorizontal: 10,
               paddingVertical: 8,
-              borderWidth: 0.5,
-              borderColor: c.border,
+              borderWidth: 1,
+              borderColor: isDark ? "#1E1E1E" : c.border,
             }}
           >
             <Pressable
@@ -487,20 +605,20 @@ export default function ChatScreen() {
                 height: 36,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 18,
-                backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(26,39,68,0.06)",
+                borderRadius: 10,
+                backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
                 marginBottom: 2,
               }}
               hitSlop={8}
             >
-              <Ionicons name="camera" size={20} color={c.navy} />
+              <Ionicons name="camera" size={18} color={isDark ? "rgba(255,255,255,0.5)" : c.textSecondary} />
             </Pressable>
 
             <TextInput
               value={inputText}
               onChangeText={setInputText}
               placeholder={pendingImage ? t("chat.placeholderImage") : t("chat.placeholder")}
-              placeholderTextColor={c.textMuted}
+              placeholderTextColor={isDark ? "rgba(255,255,255,0.2)" : c.textMuted}
               style={{
                 flex: 1,
                 fontSize: Typography.base,
@@ -522,24 +640,22 @@ export default function ChatScreen() {
                 height: 36,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 18,
+                borderRadius: 10,
                 backgroundColor: voice.isRecording
                   ? c.danger
-                  : isDark
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(26,39,68,0.06)",
+                  : isDark ? "#1A1A1A" : "#F0F2F5",
                 marginBottom: 2,
-                marginRight: 4,
+                marginRight: 6,
               }}
               hitSlop={8}
             >
               {voice.isTranscribing ? (
-                <ActivityIndicator size="small" color={c.navy} />
+                <ActivityIndicator size="small" color={isDark ? "#3DD6A3" : c.navy} />
               ) : (
                 <Ionicons
                   name={voice.isRecording ? "stop" : "mic"}
-                  size={18}
-                  color={voice.isRecording ? "#FFFFFF" : c.navy}
+                  size={16}
+                  color={voice.isRecording ? "#FFFFFF" : isDark ? "rgba(255,255,255,0.5)" : c.textSecondary}
                 />
               )}
             </Pressable>
@@ -552,21 +668,44 @@ export default function ChatScreen() {
                 height: 36,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 18,
-                backgroundColor: canSend ? c.navy : c.border,
+                borderRadius: 10,
+                overflow: "hidden",
                 marginBottom: 2,
               }}
               hitSlop={8}
             >
-              {isSending ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+              {canSend ? (
+                <LinearGradient
+                  colors={["#3DD6A3", "#A594F9"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 10,
+                  }}
+                >
+                  {isSending ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Ionicons name="send" size={15} color="#FFFFFF" style={{ marginLeft: 2 }} />
+                  )}
+                </LinearGradient>
               ) : (
-                <Ionicons
-                  name="send"
-                  size={16}
-                  color={canSend ? "#FFFFFF" : c.textMuted}
-                  style={{ marginLeft: 2 }}
-                />
+                <View
+                  style={{
+                    width: 36,
+                    height: 36,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: 10,
+                    backgroundColor: isDark ? "#1A1A1A" : "#F0F2F5",
+                  }}
+                >
+                  <Ionicons name="send" size={15} color={isDark ? "rgba(255,255,255,0.2)" : c.textMuted} style={{ marginLeft: 2 }} />
+                </View>
               )}
             </Pressable>
           </View>
