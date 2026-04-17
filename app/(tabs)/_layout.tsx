@@ -26,7 +26,7 @@ function TabIcon({
   useEffect(() => {
     Animated.parallel([
       Animated.spring(scaleAnim, {
-        toValue: focused ? 1.1 : 1,
+        toValue: focused ? 1.08 : 1,
         stiffness: 300,
         damping: 18,
         useNativeDriver: true,
@@ -48,16 +48,16 @@ function TabIcon({
   });
 
   return (
-    <Animated.View
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        backgroundColor: pillBg,
-      }}
-    >
+    <View style={{ width: 48, height: 32, alignItems: "center", justifyContent: "center" }}>
+      <Animated.View
+        style={{
+          position: "absolute",
+          width: 44,
+          height: 28,
+          borderRadius: 14,
+          backgroundColor: pillBg,
+        }}
+      />
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
         <Ionicons
           name={icon}
@@ -65,7 +65,7 @@ function TabIcon({
           color={focused ? activeColor : inactiveColor}
         />
       </Animated.View>
-    </Animated.View>
+    </View>
   );
 }
 
@@ -92,7 +92,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          height: 64 + insets.bottom,
+          height: 60 + insets.bottom,
           borderTopWidth: 1,
           borderTopColor: isDark ? "#1A1A1A" : c.border,
           backgroundColor: isDark ? "#080808" : c.surface,
@@ -101,7 +101,9 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: isDark ? 0.4 : 0.06,
           shadowRadius: 12,
-          paddingTop: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
       }}
     >
