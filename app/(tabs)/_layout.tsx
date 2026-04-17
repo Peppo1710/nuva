@@ -5,6 +5,7 @@ import { useColorScheme } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useT } from "@/lib/useT";
 
 function TabIcon({
   icon,
@@ -69,6 +70,7 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const activeColor = isDark ? c.violet : c.navy;
   const inactiveColor = c.textMuted;
+  const t = useT();
 
   return (
     <Tabs
@@ -96,7 +98,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
+          title: t("tabs.home"),
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon={focused ? "home" : "home-outline"}
@@ -110,7 +112,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: t("tabs.profile"),
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon={focused ? "person" : "person-outline"}
@@ -124,7 +126,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="medical"
         options={{
-          title: "Medical",
+          title: t("tabs.medical"),
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon={focused ? "medkit" : "medkit-outline"}
@@ -138,7 +140,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chat"
         options={{
-          title: "AI Chat",
+          title: t("tabs.chat"),
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon={focused ? "chatbubble" : "chatbubble-outline"}
@@ -152,7 +154,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="reminders"
         options={{
-          title: "Reminders",
+          title: t("tabs.reminders"),
           tabBarIcon: ({ focused }) => (
             <TabIcon
               icon={focused ? "alarm" : "alarm-outline"}

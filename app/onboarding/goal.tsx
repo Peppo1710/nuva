@@ -8,26 +8,12 @@ import { NeoButton } from "@/components/ui/NeoButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Colors } from "@/constants/colors";
 import { Typography, R, S } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
-const GOALS = [
-  {
-    id: "medicines" as const,
-    icon: "💊",
-    title: "Remember my medicines",
-    description: "Set reminders so I never miss a dose",
-  },
-  {
-    id: "prescriptions" as const,
-    icon: "📋",
-    title: "Understand prescriptions",
-    description: "Scan and decode doctor prescriptions",
-  },
-  {
-    id: "both" as const,
-    icon: "🏥",
-    title: "Both of the above",
-    description: "Full medication management and AI help",
-  },
+const GOAL_DEFS = [
+  { id: "medicines" as const, icon: "💊", key: "remember" },
+  { id: "prescriptions" as const, icon: "📋", key: "understand" },
+  { id: "both" as const, icon: "🏥", key: "track" },
 ];
 
 export default function GoalScreen() {
@@ -35,6 +21,7 @@ export default function GoalScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
   const { primaryGoal, setProfile, saveOnboardingData, loading } =
     useProfileStore();
   const [selected, setSelected] = useState<string | null>(primaryGoal);
@@ -80,21 +67,21 @@ export default function GoalScreen() {
           }}
         >
           <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
-            ← Back
+            ← {t("common.back")}
           </Text>
         </Pressable>
 
         <ProgressBar currentStep={3} totalSteps={3} />
 
         <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-          What brings you here?
+          {t("onboarding.goalTitle")}
         </Text>
         <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
-          Pick the option that best describes your needs.
+          {t("onboarding.goalBody")}
         </Text>
 
         <View style={{ gap: 16 }}>
-          {GOALS.map((goal) => {
+          {GOAL_DEFS.map((goal) => {
             const isSelected = selected === goal.id;
             return (
               <Pressable
@@ -107,7 +94,7 @@ export default function GoalScreen() {
                   borderWidth: isSelected ? 1.5 : 0.5,
                   borderColor: isSelected ? c.navy : c.border,
                   backgroundColor: isSelected
-                    ? (isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.04)")
+                    ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.04)")
                     : c.surface,
                   marginBottom: 0,
                 }}
@@ -123,10 +110,10 @@ export default function GoalScreen() {
                         color: isSelected ? c.navy : c.textPrimary,
                       }}
                     >
-                      {goal.title}
+                      {t(`onboarding.goals.${goal.key}.title`)}
                     </Text>
                     <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>
-                      {goal.description}
+                      {t(`onboarding.goals.${goal.key}.desc`)}
                     </Text>
                   </View>
                   {isSelected && (
@@ -141,7 +128,7 @@ export default function GoalScreen() {
                         marginLeft: 8,
                       }}
                     >
-                      <Text style={{ color: "#FFFFFF", fontSize: Typography.sm, fontWeight: "700" }}>✓</Text>
+                      <Text style={{ color: c.textOnNavy, fontSize: Typography.sm, fontWeight: "700" }}>✓</Text>
                     </View>
                   )}
                 </View>
@@ -159,7 +146,7 @@ export default function GoalScreen() {
         <View style={{ flex: 1 }} />
 
         <NeoButton
-          title="Finish Setup"
+          title={t("onboarding.finish")}
           onPress={handleFinish}
           disabled={!selected}
           loading={loading}

@@ -4,6 +4,7 @@ import { DEV_BYPASS_AUTH } from "@/lib/devConfig";
 import { useAuthStore } from "./authStore";
 import api from "@/lib/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { AppLanguage } from "@/lib/i18n";
 
 export interface UserProfile {
   id?: string;
@@ -20,6 +21,7 @@ export interface UserProfile {
   emergency_contact_phone: string | null;
   theme_preference: string;
   avatar_url: string | null;
+  language: AppLanguage;
 }
 
 interface ProfileState extends UserProfile {
@@ -33,6 +35,7 @@ interface ProfileState extends UserProfile {
   saveOnboardingData: () => Promise<{ error: string | null }>;
   checkOnboardingStatus: () => Promise<boolean>;
   setTheme: (theme: string) => Promise<void>;
+  setLanguage: (lang: AppLanguage, options?: { persist?: boolean }) => Promise<void>;
   reset: () => void;
 }
 
@@ -49,6 +52,7 @@ const defaultProfile: UserProfile = {
   emergency_contact_phone: null,
   theme_preference: "light",
   avatar_url: null,
+  language: "en",
 };
 
 export const useProfileStore = create<ProfileState>((set, get) => ({
@@ -103,6 +107,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
           emergency_contact_phone: profile.emergency_contact_phone,
           theme_preference: profile.theme_preference || "light",
           avatar_url: profile.avatar_url,
+          language: (profile.language as AppLanguage) || "en",
           onboardingComplete: !!profile.username,
           loading: false,
         });
@@ -132,6 +137,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       if (data.theme_preference !== undefined)
         payload.theme_preference = data.theme_preference;
       if (data.avatar_url !== undefined) payload.avatar_url = data.avatar_url;
+      if (data.language !== undefined) payload.language = data.language;
 
       const { data: responseData } = await api.put("/user/profile", payload);
       const profile = responseData.profile;
@@ -148,6 +154,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
         emergency_contact_phone: profile.emergency_contact_phone,
         theme_preference: profile.theme_preference || "light",
         avatar_url: profile.avatar_url,
+        language: (profile.language as AppLanguage) || get().language || "en",
         saving: false,
       });
       return { error: null };
@@ -253,6 +260,20 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
       await api.put("/user/profile", { theme_preference: theme });
     } catch {
       // Theme is saved locally even if remote save fails
+    }
+  },
+
+  setLanguage: async (lang, options) => {
+    set({ language: lang });
+    const persist = options?.persist !== false;
+    if (!persist) return;
+    try {
+      await AsyncStorage.setItem("app_language", lang);
+    } catch {}
+    try {
+      await api.put("/user/profile", { language: lang });
+    } catch {
+      // Language is saved locally even if remote save fails
     }
   },
 

@@ -119,7 +119,7 @@ export const NeoDropdown = React.memo(function NeoDropdown({
                     backgroundColor:
                       item === value
                         ? colorScheme === "dark"
-                          ? "rgba(58,81,160,0.15)"
+                          ? "rgba(255,255,255,0.08)"
                           : "rgba(26,39,68,0.06)"
                         : "transparent",
                   }}

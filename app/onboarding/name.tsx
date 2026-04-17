@@ -15,11 +15,13 @@ import { NeoInput } from "@/components/ui/NeoInput";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Colors } from "@/constants/colors";
 import { Typography, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 export default function NameScreen() {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const t = useT();
   const { username, setProfile } = useProfileStore();
   const [name, setName] = useState(username || "");
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export default function NameScreen() {
   const handleContinue = () => {
     const trimmed = name.trim();
     if (trimmed.length < 2) {
-      setError("Please enter at least 2 characters");
+      setError(t("common.error"));
       return;
     }
     setError(null);
@@ -59,17 +61,14 @@ export default function NameScreen() {
             }}
           >
             <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
-              ← Back
+              ← {t("common.back")}
             </Text>
           </Pressable>
 
           <ProgressBar currentStep={1} totalSteps={3} />
 
           <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-            What should we call you?
-          </Text>
-          <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
-            This is how we'll greet you in the app.
+            {t("onboarding.nameTitle")}
           </Text>
 
           <NeoInput
@@ -78,7 +77,7 @@ export default function NameScreen() {
               setName(text);
               if (error) setError(null);
             }}
-            placeholder="Your Name"
+            placeholder={t("onboarding.namePlaceholder")}
             autoFocus
             maxLength={100}
             style={{ minHeight: 64, fontSize: 22 }}
@@ -88,7 +87,7 @@ export default function NameScreen() {
           <View style={{ flex: 1 }} />
 
           <NeoButton
-            title="Continue"
+            title={t("common.continue")}
             onPress={handleContinue}
             disabled={name.trim().length < 2}
           />

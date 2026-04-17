@@ -32,7 +32,7 @@ export const NeoChip = React.memo(function NeoChip({
         borderWidth: 0.5,
         borderColor: c.border,
         backgroundColor: variant === "primary"
-          ? (colorScheme === "dark" ? "rgba(58,81,160,0.15)" : "rgba(26,39,68,0.06)")
+          ? (colorScheme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(26,39,68,0.06)")
           : c.surface,
         marginRight: 8,
         marginBottom: 8,

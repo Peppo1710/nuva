@@ -20,16 +20,18 @@ import { NeoButton } from "@/components/ui/NeoButton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Colors } from "@/constants/colors";
 import { Typography, S, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
-function getGreeting(): string {
+function getGreetingKey(): "home.greetingMorning" | "home.greetingAfternoon" | "home.greetingEvening" {
   const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "home.greetingMorning";
+  if (hour < 17) return "home.greetingAfternoon";
+  return "home.greetingEvening";
 }
 
-function getFormattedDate(): string {
-  return new Date().toLocaleDateString("en-US", {
+function getFormattedDate(locale: string): string {
+  const localeMap: Record<string, string> = { en: "en-US", hi: "hi-IN", mr: "mr-IN" };
+  return new Date().toLocaleDateString(localeMap[locale] || "en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -117,6 +119,7 @@ const MedicationItem = React.memo(function MedicationItem({
   isDark: boolean;
 }) {
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
   const isTaken = reminder.log?.status === "taken";
   const isSkipped = reminder.log?.status === "skipped";
   const hasAction = isTaken || isSkipped;
@@ -220,7 +223,7 @@ const MedicationItem = React.memo(function MedicationItem({
           >
             <Ionicons name="checkmark-circle" size={22} color="#FFFFFF" />
             <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: "#FFFFFF", marginLeft: 8 }}>
-              Taken
+              {t("home.taken")}
             </Text>
           </Pressable>
           <Pressable
@@ -241,7 +244,7 @@ const MedicationItem = React.memo(function MedicationItem({
           >
             <Ionicons name="close-circle" size={22} color={c.textSecondary} />
             <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: c.textSecondary, marginLeft: 8 }}>
-              Skip
+              {t("home.skip")}
             </Text>
           </Pressable>
         </View>
@@ -255,9 +258,11 @@ export default function HomeScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
   const insets = useSafeAreaInsets();
   const { signOut, loading: authLoading } = useAuthStore();
   const { username, fetchProfile, loading: profileLoading } = useProfileStore();
+  const language = useProfileStore((s) => s.language);
   const {
     todayReminders,
     streak,
@@ -286,7 +291,7 @@ export default function HomeScreen() {
         initNotifications(),
       ]);
     } catch {
-      setError("Could not load your dashboard. Please check your internet.");
+      setError(t("common.error"));
     }
   }, [fetchProfile, fetchTodayReminders, fetchStreak, initNotifications]);
 
@@ -336,7 +341,7 @@ export default function HomeScreen() {
               color: Colors.light.textOnNavy,
             }}
           >
-            {getGreeting()}, {username || "there"}
+            {t(getGreetingKey())}, {username || t("home.friend")}
           </Text>
           <Text
             style={{
@@ -345,7 +350,7 @@ export default function HomeScreen() {
               marginTop: 2,
             }}
           >
-            {getFormattedDate()}
+            {getFormattedDate(language)}
           </Text>
         </View>
         <ThemeToggle />
@@ -361,7 +366,7 @@ export default function HomeScreen() {
             {error}
           </Text>
           <NeoButton
-            title="Try Again"
+            title={t("common.retry")}
             onPress={() => {
               setError(null);
               loadAll();
@@ -392,7 +397,7 @@ export default function HomeScreen() {
         <NeoCard style={{ marginBottom: S.base }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
-              Today's Medications
+              {t("home.todayHeader")}
             </Text>
             <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.navy }}>
               {takenCount}/{totalCount}
@@ -425,7 +430,7 @@ export default function HomeScreen() {
 
       {totalCount > 0 && (
         <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-          Schedule
+          {t("home.upcoming")}
         </Text>
       )}
     </View>
@@ -438,7 +443,7 @@ export default function HomeScreen() {
         style={{
           padding: S.lg,
           borderRadius: R.lg,
-          backgroundColor: isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.04)",
+          backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(26,39,68,0.04)",
           borderWidth: 0.5,
           borderColor: c.border,
           marginBottom: S.base,
@@ -456,14 +461,14 @@ export default function HomeScreen() {
               marginRight: S.base,
             }}
           >
-            <Ionicons name="camera-outline" size={26} color="#FFFFFF" />
+            <Ionicons name="camera-outline" size={26} color={c.textOnNavy} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
-              Scan a Prescription
+              {t("home.scanPrescription")}
             </Text>
             <Text style={{ fontSize: Typography.sm, color: c.textSecondary, marginTop: 4 }}>
-              Use AI to read your prescription and add medicines
+              {t("home.scanPrescriptionDesc")}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color={c.textMuted} />
@@ -471,7 +476,7 @@ export default function HomeScreen() {
       </Pressable>
 
       <NeoButton
-        title="Sign Out"
+        title={t("common.signOut")}
         onPress={() => setShowSignOutConfirm(true)}
         variant="outline"
         loading={authLoading}
@@ -484,7 +489,7 @@ export default function HomeScreen() {
       <SafeAreaView edges={[]} style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator size="large" color={c.navy} />
         <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
-          Loading your dashboard...
+          {t("common.loading")}
         </Text>
       </SafeAreaView>
     );
@@ -534,7 +539,7 @@ export default function HomeScreen() {
                       marginBottom: 8,
                     }}
                   >
-                    No medicines scheduled today
+                    {t("home.noRemindersTitle")}
                   </Text>
                   <Text
                     style={{
@@ -544,11 +549,11 @@ export default function HomeScreen() {
                       lineHeight: 26,
                     }}
                   >
-                    Tap the Reminders tab to add your medications and set up daily alerts.
+                    {t("home.noRemindersBody")}
                   </Text>
                 </View>
                 <NeoButton
-                  title="Add a Reminder"
+                  title={t("home.addReminder")}
                   onPress={() => router.push("/reminder/add")}
                   className="mt-2"
                 />
@@ -565,10 +570,10 @@ export default function HomeScreen() {
 
       <ConfirmDialog
         visible={showSignOutConfirm}
-        title="Sign Out"
-        message="Are you sure you want to sign out of Nuva?"
-        confirmText="Sign Out"
-        cancelText="Stay"
+        title={t("home.signOutConfirmTitle")}
+        message={t("home.signOutConfirmBody")}
+        confirmText={t("common.signOut")}
+        cancelText={t("common.cancel")}
         onConfirm={() => {
           setShowSignOutConfirm(false);
           signOut();

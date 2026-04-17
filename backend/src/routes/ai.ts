@@ -4,7 +4,7 @@ import {
   AuthenticatedRequest,
   supabaseAdmin,
 } from "../middleware/authenticate";
-import { chatWithAI, scanPrescription } from "../services/groqService";
+import { chatWithAI, scanPrescription, transcribeAudio } from "../services/groqService";
 
 const router = Router();
 
@@ -12,7 +12,7 @@ router.post(
   "/chat",
   authenticate,
   async (req: AuthenticatedRequest, res: Response) => {
-    const { message, image_base64, history } = req.body;
+    const { message, image_base64, history, language } = req.body;
 
     if (!message && !image_base64) {
       res.status(400).json({ error: "Please type a message or attach an image." });
@@ -24,7 +24,8 @@ router.post(
         req.userId!,
         message || "Please analyze this image.",
         image_base64 || null,
-        history || []
+        history || [],
+        language || "en"
       );
 
       // Best-effort DB save — if it fails (e.g. FK constraint in dev), we
@@ -60,7 +61,7 @@ router.post(
   "/scan-prescription",
   authenticate,
   async (req: AuthenticatedRequest, res: Response) => {
-    const { image_base64 } = req.body;
+    const { image_base64, language } = req.body;
 
     if (!image_base64) {
       res.status(400).json({ error: "Please attach a prescription image." });
@@ -68,12 +69,35 @@ router.post(
     }
 
     try {
-      const result = await scanPrescription(req.userId!, image_base64);
+      const result = await scanPrescription(req.userId!, image_base64, language || "en");
       res.json(result);
     } catch (err) {
       console.error("Prescription scan error:", err);
       res.status(500).json({
         error: "Could not analyze the prescription. Please try again with a clearer image.",
+      });
+    }
+  }
+);
+
+router.post(
+  "/transcribe",
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const { audio_base64, mime_type, language } = req.body;
+
+    if (!audio_base64 || typeof audio_base64 !== "string") {
+      res.status(400).json({ error: "Please attach audio data." });
+      return;
+    }
+
+    try {
+      const text = await transcribeAudio(audio_base64, mime_type, language || "en");
+      res.json({ text });
+    } catch (err) {
+      console.error("Transcription error:", err);
+      res.status(500).json({
+        error: "Could not transcribe audio. Please try again.",
       });
     }
   }

@@ -10,14 +10,15 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0F172A"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nuva.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Nuva needs camera access to scan your prescriptions.",
-        "NSPhotoLibraryUsageDescription": "Nuva needs photo access to upload prescription images."
+        "NSPhotoLibraryUsageDescription": "Nuva needs photo access to upload prescription images.",
+        "NSMicrophoneUsageDescription": "Nuva needs microphone access so you can speak to the AI assistant."
       }
     },
     "android": {
@@ -56,6 +57,12 @@
         {
           "photosPermission": "Nuva needs access to your photos to upload prescription images.",
           "cameraPermission": "Nuva needs camera access to scan prescriptions."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Nuva needs microphone access so you can speak to the AI assistant."
         }
       ]
     ],

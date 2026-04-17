@@ -17,6 +17,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useReminderStore, Reminder } from "@/store/reminderStore";
 import { Colors } from "@/constants/colors";
 import { Typography, S, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -37,16 +38,16 @@ function getTimeGroup(timeStr: string): TimeGroup {
   return "night";
 }
 
-function getGroupMeta(group: TimeGroup) {
+function getGroupMeta(group: TimeGroup, t: (k: string) => string) {
   switch (group) {
     case "morning":
-      return { label: "Morning", icon: "sunny-outline", range: "5 AM – 12 PM" };
+      return { label: t("home.greetingMorning"), icon: "sunny-outline", range: "5 AM – 12 PM" };
     case "afternoon":
-      return { label: "Afternoon", icon: "partly-sunny-outline", range: "12 PM – 5 PM" };
+      return { label: t("home.greetingAfternoon"), icon: "partly-sunny-outline", range: "12 PM – 5 PM" };
     case "evening":
-      return { label: "Evening", icon: "moon-outline", range: "5 PM – 9 PM" };
+      return { label: t("home.greetingEvening"), icon: "moon-outline", range: "5 PM – 9 PM" };
     case "night":
-      return { label: "Night", icon: "cloudy-night-outline", range: "9 PM – 5 AM" };
+      return { label: t("reminders.later"), icon: "cloudy-night-outline", range: "9 PM – 5 AM" };
   }
 }
 
@@ -76,11 +77,12 @@ const ReminderCard = React.memo(function ReminderCard({
   isDark: boolean;
 }) {
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
   const repeatLabel =
     reminder.repeat_type === "daily"
-      ? "Every day"
+      ? t("reminderAdd.repeatDaily")
       : reminder.repeat_type === "interval"
-        ? `Every ${reminder.interval_hours}h`
+        ? `${t("reminderAdd.repeat")} ${reminder.interval_hours}h`
         : "";
 
   return (
@@ -157,7 +159,7 @@ const ReminderCard = React.memo(function ReminderCard({
         >
           <Ionicons name="pencil-outline" size={20} color={c.textPrimary} />
           <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.textPrimary, marginLeft: 8 }}>
-            Edit
+            {t("common.edit")}
           </Text>
         </Pressable>
         <Pressable
@@ -177,7 +179,7 @@ const ReminderCard = React.memo(function ReminderCard({
         >
           <Ionicons name="trash-outline" size={20} color={c.danger} />
           <Text style={{ fontSize: Typography.sm, fontWeight: "600", color: c.danger, marginLeft: 8 }}>
-            Delete
+            {t("common.delete")}
           </Text>
         </Pressable>
       </View>
@@ -190,6 +192,7 @@ export default function RemindersScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
   const {
     reminders,
     loading,
@@ -213,7 +216,7 @@ export default function RemindersScreen() {
       setError(null);
       await fetchReminders();
     } catch {
-      setError("Could not load reminders. Please check your internet.");
+      setError(t("common.error"));
     }
   }, [fetchReminders]);
 
@@ -272,13 +275,13 @@ export default function RemindersScreen() {
       .filter((g) => groups[g].length > 0)
       .map((g) => ({
         key: g,
-        label: getGroupMeta(g).label,
-        icon: getGroupMeta(g).icon,
+        label: getGroupMeta(g, t).label,
+        icon: getGroupMeta(g, t).icon,
         reminders: groups[g].sort((a, b) =>
           a.reminder_time.localeCompare(b.reminder_time)
         ),
       }));
-  }, [reminders]);
+  }, [reminders, t]);
 
   const flatData = useMemo(() => {
     const items: Array<
@@ -286,7 +289,7 @@ export default function RemindersScreen() {
       | { type: "reminder"; key: string; reminder: Reminder }
     > = [];
     for (const section of groupedSections) {
-      const meta = getGroupMeta(section.key);
+      const meta = getGroupMeta(section.key, t);
       items.push({
         type: "header",
         key: `header-${section.key}`,
@@ -300,14 +303,14 @@ export default function RemindersScreen() {
       }
     }
     return items;
-  }, [groupedSections]);
+  }, [groupedSections, t]);
 
   if (loading && reminders.length === 0) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator size="large" color={c.navy} />
         <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
-          Loading your reminders...
+          {t("common.loading")}
         </Text>
       </SafeAreaView>
     );
@@ -318,12 +321,12 @@ export default function RemindersScreen() {
       <View style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: S.xl, paddingTop: 32, paddingBottom: 16 }}>
           <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
-            Reminders
+            {t("reminders.title")}
           </Text>
           <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
             {reminders.length > 0
-              ? `${reminders.length} active reminder${reminders.length !== 1 ? "s" : ""}`
-              : "No reminders yet"}
+              ? `${reminders.length} · ${t("reminders.all")}`
+              : t("reminders.emptyTitle")}
           </Text>
         </View>
 
@@ -347,7 +350,7 @@ export default function RemindersScreen() {
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
             <Text style={{ fontSize: 64, marginBottom: 24 }}>💊</Text>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, textAlign: "center", marginBottom: 12 }}>
-              No Reminders Set
+              {t("reminders.emptyTitle")}
             </Text>
             <Text
               style={{
@@ -358,8 +361,7 @@ export default function RemindersScreen() {
                 marginBottom: 32,
               }}
             >
-              Tap the + button below to add your first medication reminder.
-              You'll get notifications so you never miss a dose.
+              {t("reminders.emptyBody")}
             </Text>
             <Pressable
               onPress={() => router.push("/reminder/add")}
@@ -373,7 +375,7 @@ export default function RemindersScreen() {
               }}
             >
               <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textOnNavy }}>
-                Add Your First Reminder
+                {t("reminders.firstReminder")}
               </Text>
             </Pressable>
           </View>
@@ -441,16 +443,16 @@ export default function RemindersScreen() {
             shadowRadius: 6,
           })}
         >
-          <Ionicons name="add" size={32} color="#FFFFFF" />
+          <Ionicons name="add" size={32} color={c.textOnNavy} />
         </Pressable>
       </View>
 
       <ConfirmDialog
         visible={!!deleteTarget}
-        title="Delete Reminder"
-        message={`Are you sure you want to delete the reminder for "${deleteTarget?.medicine_name}"? This will also cancel its notifications.`}
-        confirmText="Delete"
-        cancelText="Keep"
+        title={t("reminders.deleteTitle")}
+        message={t("reminders.deleteBody", { name: deleteTarget?.medicine_name })}
+        confirmText={t("common.delete")}
+        cancelText={t("common.keep")}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
         destructive

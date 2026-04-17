@@ -19,6 +19,8 @@ import { NeoDropdown } from "@/components/ui/NeoDropdown";
 import { NeoToggle } from "@/components/ui/NeoToggle";
 import { Colors } from "@/constants/colors";
 import { Typography, S, R } from "@/constants/typography";
+import { LANGUAGE_OPTIONS, AppLanguage } from "@/lib/i18n";
+import { useT } from "@/lib/useT";
 
 const GENDER_OPTIONS = ["Male", "Female", "Other", "Prefer not to say"];
 const BLOOD_GROUP_OPTIONS = [
@@ -65,7 +67,7 @@ function Avatar({
         alignSelf: "center",
       }}
     >
-      <Text style={{ fontSize: 40, fontWeight: "700", color: "#FFFFFF" }}>
+      <Text style={{ fontSize: 40, fontWeight: "700", color: colors.textOnNavy }}>
         {initials}
       </Text>
     </Pressable>
@@ -77,6 +79,7 @@ export default function ProfileScreen() {
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
 
+  const t = useT();
   const {
     username,
     age,
@@ -89,11 +92,13 @@ export default function ProfileScreen() {
     emergency_contact_name,
     emergency_contact_phone,
     theme_preference,
+    language,
     loading,
     saving,
     fetchProfile,
     saveProfile,
     setTheme,
+    setLanguage,
   } = useProfileStore();
 
   const authUser = useAuthStore((s) => s.user);
@@ -149,12 +154,24 @@ export default function ProfileScreen() {
     [setTheme]
   );
 
+  const handleLanguageSelect = useCallback(
+    (label: string) => {
+      const match = LANGUAGE_OPTIONS.find((opt) => opt.label === label);
+      if (match) setLanguage(match.code as AppLanguage);
+    },
+    [setLanguage]
+  );
+
+  const currentLanguageLabel =
+    LANGUAGE_OPTIONS.find((o) => o.code === language)?.label ||
+    LANGUAGE_OPTIONS[0].label;
+
   if (loading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
         <ActivityIndicator size="large" color={c.navy} />
         <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 16 }}>
-          Loading your profile...
+          {t("profile.loadingProfile")}
         </Text>
       </SafeAreaView>
     );
@@ -174,7 +191,7 @@ export default function ProfileScreen() {
         >
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
             <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary }}>
-              Profile
+              {t("profile.title")}
             </Text>
             {!editing && (
               <Pressable
@@ -192,7 +209,7 @@ export default function ProfileScreen() {
                 }}
               >
                 <Text style={{ fontSize: Typography.sm, fontWeight: "700", color: c.navy }}>
-                  Edit
+                  {t("common.edit")}
                 </Text>
               </Pressable>
             )}
@@ -209,7 +226,7 @@ export default function ProfileScreen() {
               marginBottom: 4,
             }}
           >
-            {username || "Your Name"}
+            {username || t("profile.yourName")}
           </Text>
           <Text
             style={{
@@ -241,83 +258,85 @@ export default function ProfileScreen() {
 
           <NeoCard style={{ marginBottom: 24 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 16 }}>
-              Personal Information
+              {t("profile.personalInfo")}
             </Text>
 
             {editing ? (
               <View style={{ gap: 16 }}>
                 <NeoInput
-                  label="Full Name"
+                  label={t("profile.fullName")}
                   value={form.username || ""}
-                  onChangeText={(t) => setForm({ ...form, username: t })}
-                  placeholder="Your full name"
+                  onChangeText={(val) => setForm({ ...form, username: val })}
+                  placeholder={t("profile.placeholderName")}
                 />
                 <NeoInput
-                  label="Age"
+                  label={t("profile.age")}
                   value={form.age?.toString() || ""}
-                  onChangeText={(t) =>
+                  onChangeText={(val) =>
                     setForm({
                       ...form,
-                      age: t ? parseInt(t, 10) || null : null,
+                      age: val ? parseInt(val, 10) || null : null,
                     })
                   }
-                  placeholder="Your age"
+                  placeholder={t("profile.placeholderAge")}
                   keyboardType="number-pad"
                 />
                 <NeoDropdown
-                  label="Gender"
+                  label={t("profile.gender")}
                   value={form.gender || null}
                   options={GENDER_OPTIONS}
                   onSelect={(v) => setForm({ ...form, gender: v })}
-                  placeholder="Select gender"
+                  placeholder={t("profile.placeholderGender")}
                 />
                 <NeoDropdown
-                  label="Blood Group"
+                  label={t("profile.bloodGroup")}
                   value={form.blood_group || null}
                   options={BLOOD_GROUP_OPTIONS}
                   onSelect={(v) => setForm({ ...form, blood_group: v })}
-                  placeholder="Select blood group"
+                  placeholder={t("profile.placeholderBlood")}
                 />
                 <NeoInput
-                  label="Weight (kg)"
+                  label={t("profile.weightKg")}
                   value={form.weight_kg?.toString() || ""}
-                  onChangeText={(t) =>
+                  onChangeText={(val) =>
                     setForm({
                       ...form,
-                      weight_kg: t ? parseFloat(t) || null : null,
+                      weight_kg: val ? parseFloat(val) || null : null,
                     })
                   }
-                  placeholder="e.g. 70"
+                  placeholder={t("profile.placeholderWeight")}
                   keyboardType="decimal-pad"
                 />
                 <NeoInput
-                  label="Height (cm)"
+                  label={t("profile.heightCm")}
                   value={form.height_cm?.toString() || ""}
-                  onChangeText={(t) =>
+                  onChangeText={(val) =>
                     setForm({
                       ...form,
-                      height_cm: t ? parseFloat(t) || null : null,
+                      height_cm: val ? parseFloat(val) || null : null,
                     })
                   }
-                  placeholder="e.g. 165"
+                  placeholder={t("profile.placeholderHeight")}
                   keyboardType="decimal-pad"
                 />
               </View>
             ) : (
               <View style={{ gap: 12 }}>
-                <ProfileField label="Full Name" value={username} colors={c} />
-                <ProfileField label="Age" value={age?.toString()} colors={c} />
-                <ProfileField label="Gender" value={gender} colors={c} />
-                <ProfileField label="Blood Group" value={blood_group} colors={c} />
+                <ProfileField label={t("profile.fullName")} value={username} colors={c} notSetLabel={t("common.notSet")} />
+                <ProfileField label={t("profile.age")} value={age?.toString()} colors={c} notSetLabel={t("common.notSet")} />
+                <ProfileField label={t("profile.gender")} value={gender} colors={c} notSetLabel={t("common.notSet")} />
+                <ProfileField label={t("profile.bloodGroup")} value={blood_group} colors={c} notSetLabel={t("common.notSet")} />
                 <ProfileField
-                  label="Weight"
+                  label={t("profile.weight")}
                   value={weight_kg ? `${weight_kg} kg` : null}
                   colors={c}
+                  notSetLabel={t("common.notSet")}
                 />
                 <ProfileField
-                  label="Height"
+                  label={t("profile.height")}
                   value={height_cm ? `${height_cm} cm` : null}
                   colors={c}
+                  notSetLabel={t("common.notSet")}
                 />
               </View>
             )}
@@ -325,7 +344,7 @@ export default function ProfileScreen() {
 
           <NeoCard style={{ marginBottom: 24 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 16 }}>
-              Contact Information
+              {t("profile.contactInfo")}
             </Text>
 
             {editing ? (
@@ -339,7 +358,7 @@ export default function ProfileScreen() {
                       marginBottom: 8,
                     }}
                   >
-                    Phone Number
+                    {t("profile.phone")}
                   </Text>
                   <View
                     style={{
@@ -354,83 +373,93 @@ export default function ProfileScreen() {
                     }}
                   >
                     <Text style={{ fontSize: Typography.base, color: c.textMuted }}>
-                      {authUser?.phone || phone || "Not set"}
+                      {authUser?.phone || phone || t("common.notSet")}
                     </Text>
                   </View>
                 </View>
                 <NeoInput
-                  label="Emergency Contact Name"
+                  label={t("profile.emergencyContactName")}
                   value={form.emergency_contact_name || ""}
-                  onChangeText={(t) =>
-                    setForm({ ...form, emergency_contact_name: t })
+                  onChangeText={(val) =>
+                    setForm({ ...form, emergency_contact_name: val })
                   }
-                  placeholder="Contact person name"
+                  placeholder={t("profile.placeholderContactName")}
                 />
                 <NeoInput
-                  label="Emergency Contact Phone"
+                  label={t("profile.emergencyContactPhone")}
                   value={form.emergency_contact_phone || ""}
-                  onChangeText={(t) =>
-                    setForm({ ...form, emergency_contact_phone: t })
+                  onChangeText={(val) =>
+                    setForm({ ...form, emergency_contact_phone: val })
                   }
-                  placeholder="Contact phone number"
+                  placeholder={t("profile.placeholderContactPhone")}
                   keyboardType="phone-pad"
                 />
                 <NeoInput
-                  label="City"
+                  label={t("profile.city")}
                   value={form.city || ""}
-                  onChangeText={(t) => setForm({ ...form, city: t })}
-                  placeholder="Your city"
+                  onChangeText={(val) => setForm({ ...form, city: val })}
+                  placeholder={t("profile.placeholderCity")}
                 />
               </View>
             ) : (
               <View style={{ gap: 12 }}>
                 <ProfileField
-                  label="Phone Number"
+                  label={t("profile.phone")}
                   value={authUser?.phone || phone}
                   colors={c}
+                  notSetLabel={t("common.notSet")}
                 />
                 <ProfileField
-                  label="Emergency Contact"
+                  label={t("profile.emergencyContact")}
                   value={emergency_contact_name}
                   colors={c}
+                  notSetLabel={t("common.notSet")}
                 />
                 <ProfileField
-                  label="Emergency Phone"
+                  label={t("profile.emergencyPhone")}
                   value={emergency_contact_phone}
                   colors={c}
+                  notSetLabel={t("common.notSet")}
                 />
-                <ProfileField label="City" value={city} colors={c} />
+                <ProfileField label={t("profile.city")} value={city} colors={c} notSetLabel={t("common.notSet")} />
               </View>
             )}
           </NeoCard>
 
           <NeoCard style={{ marginBottom: 24 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 16 }}>
-              App Preferences
+              {t("profile.appPrefs")}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: 56 }}>
               <Text style={{ fontSize: Typography.base, color: c.textPrimary }}>
-                Theme
+                {t("profile.theme")}
               </Text>
               <NeoToggle
                 value={theme_preference === "dark"}
                 onValueChange={handleThemeToggle}
-                leftLabel="Light"
-                rightLabel="Dark"
+                leftLabel={t("profile.light")}
+                rightLabel={t("profile.dark")}
               />
             </View>
+            <View style={{ height: 12 }} />
+            <NeoDropdown
+              label={t("profile.language")}
+              value={currentLanguageLabel}
+              options={LANGUAGE_OPTIONS.map((o) => o.label)}
+              onSelect={handleLanguageSelect}
+            />
           </NeoCard>
 
           {editing && (
             <View style={{ gap: 12, marginBottom: 16 }}>
               <NeoButton
-                title={saving ? "Saving..." : "Save Changes"}
+                title={saving ? t("profile.saving") : t("profile.saveChanges")}
                 onPress={handleSave}
                 loading={saving}
                 disabled={saving}
               />
               <NeoButton
-                title="Cancel"
+                title={t("common.cancel")}
                 onPress={() => {
                   setEditing(false);
                   setSaveError(null);
@@ -449,10 +478,12 @@ function ProfileField({
   label,
   value,
   colors,
+  notSetLabel,
 }: {
   label: string;
   value: string | null | undefined;
   colors: typeof Colors.light;
+  notSetLabel: string;
 }) {
   return (
     <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", minHeight: 44 }}>
@@ -460,7 +491,7 @@ function ProfileField({
         {label}
       </Text>
       <Text style={{ fontSize: Typography.base, fontWeight: "500", color: colors.textPrimary, flex: 1, textAlign: "right" }}>
-        {value || "Not set"}
+        {value || notSetLabel}
       </Text>
     </View>
   );

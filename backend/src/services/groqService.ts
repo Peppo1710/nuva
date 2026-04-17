@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import Groq, { toFile } from "groq-sdk";
 import { supabaseAdmin } from "../middleware/authenticate";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -47,13 +47,28 @@ async function getUserContext(userId: string): Promise<UserContext> {
   }
 }
 
-function buildSystemPrompt(ctx: UserContext): string {
+type LanguageCode = "en" | "hi" | "mr";
+
+function languageInstruction(lang: LanguageCode): string {
+  switch (lang) {
+    case "hi":
+      return "IMPORTANT: Respond entirely in Hindi (हिन्दी) using the Devanagari script. Keep drug/medicine names in their original brand form. All sentences, greetings, and explanations MUST be in Hindi.";
+    case "mr":
+      return "IMPORTANT: Respond entirely in Marathi (मराठी) using the Devanagari script. Keep drug/medicine names in their original brand form. All sentences, greetings, and explanations MUST be in Marathi.";
+    case "en":
+    default:
+      return "Respond in clear, simple English.";
+  }
+}
+
+function buildSystemPrompt(ctx: UserContext, language: LanguageCode = "en"): string {
   const medsStr =
     ctx.medications.length > 0
       ? ctx.medications.map((m) => `${m.name} (${m.dosage || "unknown dose"}, ${m.frequency || "unknown frequency"})`).join(", ")
       : "None recorded";
 
   return `You are Nuva, a friendly health companion for elderly patients.
+${languageInstruction(language)}
 Always respond in simple, clear language. No medical jargon.
 User profile: Name=${ctx.username || "Unknown"}, Age=${ctx.age || "Unknown"}, Blood Group=${ctx.blood_group || "Unknown"}.
 Known conditions: ${ctx.conditions.length > 0 ? ctx.conditions.join(", ") : "None recorded"}.
@@ -66,6 +81,11 @@ NEVER diagnose conditions. Always recommend consulting a doctor for serious issu
 Be warm, patient, encouraging, and concise. Responses max 150 words unless listing drugs.`;
 }
 
+function normalizeLanguage(lang: unknown): LanguageCode {
+  if (lang === "hi" || lang === "mr") return lang;
+  return "en";
+}
+
 interface HistoryMessage {
   role: "user" | "assistant";
   content: string;
@@ -75,10 +95,12 @@ export async function chatWithAI(
   userId: string,
   message: string,
   imageBase64: string | null,
-  history: HistoryMessage[]
+  history: HistoryMessage[],
+  language: unknown = "en"
 ): Promise<string> {
   const ctx = await getUserContext(userId);
-  const systemPrompt = buildSystemPrompt(ctx);
+  const lang = normalizeLanguage(language);
+  const systemPrompt = buildSystemPrompt(ctx, lang);
 
   const useVision = !!imageBase64;
 
@@ -121,11 +143,13 @@ export async function chatWithAI(
 
 export async function scanPrescription(
   userId: string,
-  imageBase64: string
+  imageBase64: string,
+  language: unknown = "en"
 ): Promise<{ drugs: { name: string; dosage: string; frequency: string; instructions: string }[]; raw_text: string }> {
   const ctx = await getUserContext(userId);
+  const lang = normalizeLanguage(language);
 
-  const scanPrompt = `${buildSystemPrompt(ctx)}
+  const scanPrompt = `${buildSystemPrompt(ctx, lang)}
 
 Analyze this prescription or medicine label image carefully.
 Extract ALL drugs/medications visible and return ONLY a valid JSON object in this exact format (no markdown, no backticks, just pure JSON):
@@ -172,4 +196,48 @@ If you cannot read the image clearly, return: {"drugs": [], "raw_text": "Could n
       raw_text: text || "Could not analyze the prescription.",
     };
   }
+}
+
+const WHISPER_MODEL = "whisper-large-v3";
+
+function whisperLanguageHint(language: unknown): string | undefined {
+  const lang = normalizeLanguage(language);
+  if (lang === "en") return "en";
+  if (lang === "hi") return "hi";
+  if (lang === "mr") return "mr";
+  return undefined;
+}
+
+export async function transcribeAudio(
+  audioBase64: string,
+  mimeType: string | undefined,
+  language: unknown = "en"
+): Promise<string> {
+  const cleanedBase64 = audioBase64.includes(",") ? audioBase64.split(",").pop()! : audioBase64;
+  const buffer = Buffer.from(cleanedBase64, "base64");
+  const ext = (() => {
+    const m = (mimeType || "").toLowerCase();
+    if (m.includes("mp4") || m.includes("m4a") || m.includes("aac")) return "m4a";
+    if (m.includes("wav")) return "wav";
+    if (m.includes("webm")) return "webm";
+    if (m.includes("ogg")) return "ogg";
+    if (m.includes("mpeg") || m.includes("mp3")) return "mp3";
+    return "m4a";
+  })();
+
+  const file = await toFile(buffer, `audio.${ext}`);
+
+  const langHint = whisperLanguageHint(language);
+
+  const completion = await groq.audio.transcriptions.create({
+    file,
+    model: WHISPER_MODEL,
+    ...(langHint ? { language: langHint } : {}),
+    response_format: "text",
+    temperature: 0,
+  });
+
+  const result = completion as unknown as string | { text?: string };
+  if (typeof result === "string") return result.trim();
+  return ((result?.text) || "").trim();
 }

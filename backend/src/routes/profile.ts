@@ -54,6 +54,7 @@ router.put(
       emergency_contact_phone,
       theme_preference,
       avatar_url,
+      language,
     } = req.body;
 
     try {
@@ -75,6 +76,7 @@ router.put(
       if (theme_preference !== undefined)
         updateData.theme_preference = theme_preference;
       if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+      if (language !== undefined) updateData.language = language;
 
       const { data, error } = await supabaseAdmin
         .from("users")

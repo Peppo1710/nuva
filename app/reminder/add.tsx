@@ -18,13 +18,14 @@ import { useReminderStore, CreateReminderData } from "@/store/reminderStore";
 import { useMedicalStore } from "@/store/medicalStore";
 import { Colors } from "@/constants/colors";
 import { Typography, S, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
-const DOSE_UNITS = ["tablet", "capsule", "ml", "drops"];
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DOSE_UNITS = ["tablet", "capsule", "ml", "drops"] as const;
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 const REPEAT_OPTIONS = [
-  { value: "daily", label: "Daily", description: "Every day" },
-  { value: "specific_days", label: "Specific Days", description: "Choose days" },
-  { value: "interval", label: "Interval", description: "Every X hours" },
+  { value: "daily", labelKey: "reminderAdd.daily", descKey: "reminderAdd.dailyDesc" },
+  { value: "specific_days", labelKey: "reminderAdd.specificDays", descKey: "reminderAdd.specificDaysDesc" },
+  { value: "interval", labelKey: "reminderAdd.interval", descKey: "reminderAdd.intervalDesc" },
 ] as const;
 
 export default function AddReminderScreen() {
@@ -32,6 +33,7 @@ export default function AddReminderScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
 
   const params = useLocalSearchParams<{
     id?: string;
@@ -109,7 +111,7 @@ export default function AddReminderScreen() {
 
   const handleSave = async () => {
     if (!medicineName.trim()) {
-      setNameError("Please enter the medicine name");
+      setNameError(t("reminderAdd.nameRequired"));
       return;
     }
     setNameError("");
@@ -167,7 +169,7 @@ export default function AddReminderScreen() {
             <Text style={{ fontSize: Typography.xl, color: c.textPrimary }}>←</Text>
           </Pressable>
           <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary, flex: 1 }}>
-            {isEditing ? "Edit Reminder" : "Add Reminder"}
+            {isEditing ? t("reminderAdd.editTitle") : t("reminderAdd.title")}
           </Text>
         </View>
 
@@ -179,7 +181,7 @@ export default function AddReminderScreen() {
           {/* Medicine Name */}
           <NeoCard style={{ marginBottom: 20 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-              Medicine Name
+              {t("reminderAdd.medicineName")}
             </Text>
             <NeoInput
               value={medicineName}
@@ -189,7 +191,7 @@ export default function AddReminderScreen() {
                 setShowSuggestions(true);
               }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              placeholder="Enter medicine name"
+              placeholder={t("reminderAdd.medicineNamePlaceholder")}
               error={nameError}
             />
             {showSuggestions && filteredMedications.length > 0 && (
@@ -234,7 +236,7 @@ export default function AddReminderScreen() {
           {/* Dosage */}
           <NeoCard style={{ marginBottom: 20 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-              Dosage
+              {t("reminderAdd.dose")}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
               <Pressable
@@ -294,7 +296,7 @@ export default function AddReminderScreen() {
                     justifyContent: "center",
                     borderColor: doseUnit === unit ? c.navy : c.border,
                     backgroundColor: doseUnit === unit
-                      ? (isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)")
+                      ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)")
                       : c.surface,
                   }}
                 >
@@ -305,7 +307,7 @@ export default function AddReminderScreen() {
                       color: doseUnit === unit ? c.navy : c.textPrimary,
                     }}
                   >
-                    {unit}
+                    {t(`reminderAdd.units.${unit}`)}
                   </Text>
                 </Pressable>
               ))}
@@ -315,7 +317,7 @@ export default function AddReminderScreen() {
           {/* Time Picker */}
           <NeoCard style={{ marginBottom: 20 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-              Time
+              {t("reminderAdd.time")}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
               <View style={{ alignItems: "center" }}>
@@ -395,7 +397,7 @@ export default function AddReminderScreen() {
           {/* Repeat Pattern */}
           <NeoCard style={{ marginBottom: 20 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-              Repeat
+              {t("reminderAdd.repeat")}
             </Text>
             {REPEAT_OPTIONS.map((option) => (
               <Pressable
@@ -409,7 +411,7 @@ export default function AddReminderScreen() {
                   minHeight: 56,
                   borderColor: repeatType === option.value ? c.navy : c.border,
                   backgroundColor: repeatType === option.value
-                    ? (isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)")
+                    ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)")
                     : c.surface,
                 }}
               >
@@ -420,10 +422,10 @@ export default function AddReminderScreen() {
                     color: repeatType === option.value ? c.navy : c.textPrimary,
                   }}
                 >
-                  {option.label}
+                  {t(option.labelKey)}
                 </Text>
                 <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginTop: 4 }}>
-                  {option.description}
+                  {t(option.descKey)}
                 </Text>
               </Pressable>
             ))}
@@ -431,10 +433,10 @@ export default function AddReminderScreen() {
             {repeatType === "specific_days" && (
               <View style={{ marginTop: 12 }}>
                 <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textPrimary, marginBottom: 12 }}>
-                  Select Days
+                  {t("reminderAdd.selectDays")}
                 </Text>
                 <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                  {DAY_LABELS.map((label, index) => (
+                  {DAY_KEYS.map((dayKey, index) => (
                     <Pressable
                       key={index}
                       onPress={() => toggleDay(index)}
@@ -460,7 +462,7 @@ export default function AddReminderScreen() {
                           color: daysOfWeek.includes(index) ? "#FFFFFF" : c.textPrimary,
                         }}
                       >
-                        {label}
+                        {t(`reminderAdd.days.${dayKey}`)}
                       </Text>
                     </Pressable>
                   ))}
@@ -471,7 +473,7 @@ export default function AddReminderScreen() {
             {repeatType === "interval" && (
               <View style={{ marginTop: 12 }}>
                 <Text style={{ fontSize: Typography.base, fontWeight: "600", color: c.textPrimary, marginBottom: 12 }}>
-                  Every how many hours?
+                  {t("reminderAdd.intervalQuestion")}
                 </Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Pressable
@@ -495,7 +497,7 @@ export default function AddReminderScreen() {
                     <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary }}>
                       {intervalHours}
                     </Text>
-                    <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>hours</Text>
+                    <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>{t("reminderAdd.hours")}</Text>
                   </View>
                   <Pressable
                     onPress={() => setIntervalHours(intervalHours + 1)}
@@ -522,12 +524,12 @@ export default function AddReminderScreen() {
           {/* Notes */}
           <NeoCard style={{ marginBottom: 20 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-              Notes (Optional)
+              {t("reminderAdd.notes")}
             </Text>
             <NeoInput
               value={notes}
               onChangeText={setNotes}
-              placeholder="e.g. Take after food, with water"
+              placeholder={t("reminderAdd.notesPlaceholder")}
               multiline
               numberOfLines={3}
               style={{ minHeight: 80 }}
@@ -536,7 +538,7 @@ export default function AddReminderScreen() {
 
           <View style={{ paddingBottom: 32 }}>
             <NeoButton
-              title={saving ? "Saving..." : isEditing ? "Update Reminder" : "Save Reminder"}
+              title={saving ? t("reminderAdd.saving") : isEditing ? t("reminderAdd.update") : t("reminderAdd.save")}
               onPress={handleSave}
               loading={saving}
               disabled={saving}

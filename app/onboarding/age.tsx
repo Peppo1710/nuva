@@ -14,6 +14,7 @@ import { NeoButton } from "@/components/ui/NeoButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Colors } from "@/constants/colors";
 import { Typography, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 const MIN_AGE = 40;
 const MAX_AGE = 100;
@@ -25,6 +26,7 @@ export default function AgeScreen() {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const t = useT();
   const { age, setProfile } = useProfileStore();
   const [selectedAge, setSelectedAge] = useState(age ?? 65);
   const flatListRef = useRef<FlatList>(null);
@@ -75,7 +77,7 @@ export default function AgeScreen() {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: isSelected
-            ? (colorScheme === "dark" ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)")
+            ? (colorScheme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)")
             : "transparent",
         }}
       >
@@ -112,17 +114,14 @@ export default function AgeScreen() {
           }}
         >
           <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
-            ← Back
+            ← {t("common.back")}
           </Text>
         </Pressable>
 
         <ProgressBar currentStep={2} totalSteps={3} />
 
         <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-          How old are you?
-        </Text>
-        <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
-          This helps us personalize your experience.
+          {t("onboarding.ageTitle")}
         </Text>
 
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -207,11 +206,11 @@ export default function AgeScreen() {
           </View>
 
           <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary, marginTop: 24 }}>
-            {selectedAge} years old
+            {selectedAge}
           </Text>
         </View>
 
-        <NeoButton title="Continue" onPress={handleContinue} />
+        <NeoButton title={t("common.continue")} onPress={handleContinue} />
       </View>
     </SafeAreaView>
   );

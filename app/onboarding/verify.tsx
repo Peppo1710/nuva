@@ -15,6 +15,7 @@ import { useProfileStore } from "@/store/profileStore";
 import { NeoCard } from "@/components/ui/NeoCard";
 import { Colors } from "@/constants/colors";
 import { Typography, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 30;
@@ -23,6 +24,7 @@ export default function VerifyScreen() {
   const { phone } = useLocalSearchParams<{ phone: string }>();
   const { colorScheme } = useColorScheme();
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const t = useT();
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(RESEND_COOLDOWN);
@@ -144,19 +146,16 @@ export default function VerifyScreen() {
             }}
           >
             <Text style={{ fontSize: Typography.base, fontWeight: "700", color: c.textPrimary }}>
-              ← Back
+              ← {t("common.back")}
             </Text>
           </Pressable>
 
           <NeoCard style={{ marginBottom: 32 }}>
             <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
-              Enter Verification Code
+              {t("onboarding.verifyTitle")}
             </Text>
             <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 32 }}>
-              We sent a 6-digit code to{"\n"}
-              <Text style={{ fontWeight: "700", color: c.textPrimary }}>
-                {phone}
-              </Text>
+              {t("onboarding.verifyBody", { phone })}
             </Text>
 
             <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8, marginBottom: 24 }}>
@@ -199,7 +198,7 @@ export default function VerifyScreen() {
 
             {loading && (
               <Text style={{ fontSize: Typography.base, color: c.navy, fontWeight: "500", textAlign: "center", marginBottom: 16 }}>
-                Verifying...
+                {t("common.loading")}
               </Text>
             )}
           </NeoCard>
@@ -207,7 +206,6 @@ export default function VerifyScreen() {
           <View style={{ alignItems: "center" }}>
             {resendTimer > 0 ? (
               <Text style={{ fontSize: Typography.base, color: c.textSecondary }}>
-                Resend code in{" "}
                 <Text style={{ fontWeight: "700", color: c.textPrimary }}>
                   {resendTimer}s
                 </Text>
@@ -215,7 +213,7 @@ export default function VerifyScreen() {
             ) : (
               <Pressable onPress={handleResend} style={{ minHeight: 56, justifyContent: "center", paddingHorizontal: 24 }}>
                 <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.navy, textDecorationLine: "underline" }}>
-                  Resend Code
+                  {t("onboarding.resend")}
                 </Text>
               </Pressable>
             )}

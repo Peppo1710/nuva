@@ -19,11 +19,13 @@ import { NeoChip } from "@/components/ui/NeoChip";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Colors } from "@/constants/colors";
 import { Typography, S, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 export default function MedicalScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
 
   const {
     conditions,
@@ -89,7 +91,7 @@ export default function MedicalScreen() {
       try {
         await Promise.all([fetchMedicalHistory(), fetchMedications()]);
       } catch {
-        setError("Could not load medical data. Please check your internet.");
+        setError(t("common.error"));
       }
     };
     load();
@@ -234,7 +236,7 @@ export default function MedicalScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 24 }}>
-          Medical History
+          {t("medical.title")}
         </Text>
 
         {error && (
@@ -265,7 +267,7 @@ export default function MedicalScreen() {
         <NeoCard style={{ marginBottom: 24 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
-              Current Conditions
+              {t("medical.conditions")}
             </Text>
           </View>
           {conditions.length === 0 ? (
@@ -302,7 +304,7 @@ export default function MedicalScreen() {
                 borderRadius: R.md,
                 borderWidth: 0.5,
                 borderColor: c.navy,
-                backgroundColor: isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)",
+                backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)",
                 alignItems: "center",
                 justifyContent: "center",
               }}
@@ -315,7 +317,7 @@ export default function MedicalScreen() {
         <NeoCard style={{ marginBottom: 24 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
-              Ongoing Medications
+              {t("medical.medications")}
             </Text>
             <Pressable
               onPress={() => setShowMedForm(true)}
@@ -361,7 +363,7 @@ export default function MedicalScreen() {
         <NeoCard style={{ marginBottom: 24 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <Text style={{ fontSize: Typography.md, fontWeight: "700", color: c.textPrimary }}>
-              Allergies
+              {t("medical.allergies")}
             </Text>
           </View>
           {allergies.length === 0 ? (
@@ -397,7 +399,7 @@ export default function MedicalScreen() {
                 borderRadius: R.md,
                 borderWidth: 0.5,
                 borderColor: c.navy,
-                backgroundColor: isDark ? "rgba(58,81,160,0.12)" : "rgba(26,39,68,0.06)",
+                backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(26,39,68,0.06)",
                 alignItems: "center",
                 justifyContent: "center",
               }}

@@ -1,4 +1,5 @@
 import "../global.css";
+import "@/lib/textDefaults";
 import { useEffect, useState, useRef } from "react";
 import { View, Text, Animated, Easing } from "react-native";
 import { Slot, useRouter, useSegments } from "expo-router";
@@ -7,10 +8,19 @@ import * as Notifications from "expo-notifications";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from "@expo-google-fonts/inter";
 import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
 import { NetworkBanner } from "@/components/ui/NetworkBanner";
 import { playNotificationSound, cleanupSound } from "@/lib/notificationSound";
+import { setI18nLocale } from "@/lib/i18n";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -111,7 +121,7 @@ function AnimatedSplash() {
         bottom: 0,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#0F172A",
+        backgroundColor: "#000000",
         zIndex: 100,
       }}
     >
@@ -223,12 +233,39 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
+  const languagePreference = useProfileStore((s) => s.language);
+
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const saved = await AsyncStorage.getItem("app_language");
+        if (saved === "en" || saved === "hi" || saved === "mr") {
+          setI18nLocale(saved);
+          useProfileStore.getState().setLanguage(saved, { persist: false });
+        }
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (languagePreference) {
+      setI18nLocale(languagePreference);
+    }
+  }, [languagePreference]);
 
   useEffect(() => {
     initialize().then(() => {
-      SplashScreen.hideAsync();
+      if (fontsLoaded) SplashScreen.hideAsync();
     });
-  }, []);
+  }, [fontsLoaded]);
 
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener(() => {
@@ -240,6 +277,8 @@ export default function RootLayout() {
       cleanupSound();
     };
   }, []);
+
+  if (!fontsLoaded) return null;
 
   return (
     <ThemeProvider>

@@ -18,6 +18,9 @@ import * as ImagePicker from "expo-image-picker";
 import api from "@/lib/api";
 import { Colors } from "@/constants/colors";
 import { Typography, S, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
+import { useProfileStore } from "@/store/profileStore";
+import { useVoiceInput } from "@/lib/useVoiceInput";
 
 interface Message {
   id: string;
@@ -32,17 +35,15 @@ interface PendingImage {
   uri: string;
 }
 
-const QUICK_PROMPTS = [
-  { icon: "📷", text: "What is this medicine for?" },
-  { icon: "💊", text: "Can I take Drug A with Drug B?" },
-  { icon: "🤕", text: "I have a headache, what should I do?" },
-  { icon: "📋", text: "Tell me about my medications" },
-];
+const QUICK_PROMPT_KEYS = ["scan", "interaction", "headache", "myMeds"] as const;
 
 export default function ChatScreen() {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
+  const t = useT();
+  const language = useProfileStore((s) => s.language);
+  const voice = useVoiceInput();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -62,7 +63,7 @@ export default function ChatScreen() {
       const userMessage: Message = {
         id: Date.now().toString(),
         role: "user",
-        content: text.trim() || "[Image sent]",
+        content: text.trim() || t("chat.imageSent"),
         imageUri,
       };
 
@@ -86,9 +87,10 @@ export default function ChatScreen() {
           .map((m) => ({ role: m.role, content: m.content }));
 
         const { data } = await api.post("/ai/chat", {
-          message: text.trim() || "Please analyze this image.",
+          message: text.trim() || t("chat.analyzeImage"),
           image_base64: imageBase64 || null,
           history,
+          language,
         });
 
         const assistantMessage: Message = {
@@ -106,7 +108,7 @@ export default function ChatScreen() {
           role: "assistant",
           content:
             err?.response?.data?.error ||
-            "Sorry, I couldn't get a response. Please check your internet connection and try again.",
+            t("chat.errorReply"),
         };
         setMessages((prev) =>
           prev.map((m) => (m.id === loadingMessage.id ? errorMessage : m))
@@ -116,7 +118,7 @@ export default function ChatScreen() {
         setTimeout(scrollToBottom, 200);
       }
     },
-    [messages, isSending, scrollToBottom]
+    [messages, isSending, scrollToBottom, t, language]
   );
 
   const handleSend = useCallback(() => {
@@ -134,10 +136,7 @@ export default function ChatScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Permission needed",
-          "Please allow access to your photo library."
-        );
+        Alert.alert(t("chat.permissionNeeded"), t("chat.permissionPhotos"));
         return;
       }
 
@@ -154,18 +153,15 @@ export default function ChatScreen() {
         setPendingImage({ base64, uri: asset.uri });
       }
     } catch {
-      Alert.alert("Error", "Could not open the photo library.");
+      Alert.alert(t("common.error"), t("chat.errorOpenGallery"));
     }
-  }, []);
+  }, [t]);
 
   const openCamera = useCallback(async () => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Permission needed",
-          "Please allow access to your camera."
-        );
+        Alert.alert(t("chat.permissionNeeded"), t("chat.permissionCamera"));
         return;
       }
 
@@ -182,22 +178,40 @@ export default function ChatScreen() {
         setPendingImage({ base64, uri: asset.uri });
       }
     } catch {
-      Alert.alert("Error", "Could not open the camera.");
+      Alert.alert(t("common.error"), t("chat.errorOpenCamera"));
     }
-  }, []);
+  }, [t]);
 
   const handleAttachImage = useCallback(() => {
     Alert.alert(
-      "Attach Image",
-      "Choose a source",
+      t("chat.attachImage"),
+      t("chat.attachChoose"),
       [
-        { text: "Gallery", onPress: openGallery },
-        { text: "Camera", onPress: openCamera },
-        { text: "Cancel", style: "cancel" },
+        { text: t("chat.gallery"), onPress: openGallery },
+        { text: t("chat.camera"), onPress: openCamera },
+        { text: t("common.cancel"), style: "cancel" },
       ],
       { cancelable: true }
     );
-  }, [openGallery, openCamera]);
+  }, [openGallery, openCamera, t]);
+
+  const handleMicPress = useCallback(async () => {
+    if (voice.isRecording) {
+      try {
+        const transcript = await voice.stop(language);
+        if (transcript) {
+          setInputText((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+      } catch {
+        Alert.alert(t("common.error"), t("chat.errorVoice"));
+      }
+    } else {
+      const started = await voice.start();
+      if (!started) {
+        Alert.alert(t("chat.permissionNeeded"), t("chat.permissionMic"));
+      }
+    }
+  }, [voice, language, t]);
 
   const handleNewChat = useCallback(async () => {
     try {
@@ -236,7 +250,7 @@ export default function ChatScreen() {
                 marginTop: 4,
               }}
             >
-              <Text style={{ color: "#FFFFFF", fontSize: Typography.xs, fontWeight: "700" }}>AI</Text>
+              <Text style={{ color: c.textOnNavy, fontSize: Typography.xs, fontWeight: "700" }}>AI</Text>
             </View>
           )}
           <View
@@ -262,7 +276,7 @@ export default function ChatScreen() {
             {item.loading ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <ActivityIndicator size="small" color={c.navy} />
-                <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>Thinking...</Text>
+                <Text style={{ fontSize: Typography.sm, color: c.textMuted }}>{t("chat.thinking")}</Text>
               </View>
             ) : (
               <Text
@@ -279,7 +293,7 @@ export default function ChatScreen() {
         </View>
       );
     },
-    [c]
+    [c, t]
   );
 
   const canSend = (inputText.trim().length > 0 || pendingImage !== null) && !isSending;
@@ -306,10 +320,10 @@ export default function ChatScreen() {
         >
           <View>
             <Text style={{ fontSize: Typography.lg, fontWeight: "700", color: c.textPrimary }}>
-              AI Chat
+              {t("chat.title")}
             </Text>
             <Text style={{ fontSize: Typography.sm, color: c.textSecondary }}>
-              Your personal health companion
+              {t("chat.subtitle")}
             </Text>
           </View>
 
@@ -319,7 +333,7 @@ export default function ChatScreen() {
               width: 38,
               height: 38,
               borderRadius: 19,
-              backgroundColor: isDark ? "rgba(58,81,160,0.15)" : "rgba(26,39,68,0.06)",
+              backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(26,39,68,0.06)",
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -341,30 +355,34 @@ export default function ChatScreen() {
                 paddingHorizontal: 8,
               }}
             >
-              Quick questions to get started:
+              {t("chat.quickStart")}
             </Text>
             <View style={{ gap: 12 }}>
-              {QUICK_PROMPTS.map((prompt) => (
-                <Pressable
-                  key={prompt.text}
-                  onPress={() => handleQuickPrompt(prompt.text)}
-                  style={{
-                    padding: S.base,
-                    borderRadius: R.lg,
-                    borderWidth: 0.5,
-                    borderColor: c.border,
-                    backgroundColor: c.surface,
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ fontSize: Typography.md, marginRight: 12 }}>{prompt.icon}</Text>
-                  <Text style={{ fontSize: Typography.base, color: c.textPrimary, fontWeight: "500", flex: 1 }}>
-                    {prompt.text}
-                  </Text>
-                  <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
-                </Pressable>
-              ))}
+              {QUICK_PROMPT_KEYS.map((key) => {
+                const promptText = t(`chat.prompts.${key}`);
+                const promptIcon = t(`chat.promptIcons.${key}`);
+                return (
+                  <Pressable
+                    key={key}
+                    onPress={() => handleQuickPrompt(promptText)}
+                    style={{
+                      padding: S.base,
+                      borderRadius: R.lg,
+                      borderWidth: 0.5,
+                      borderColor: c.border,
+                      backgroundColor: c.surface,
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ fontSize: Typography.md, marginRight: 12 }}>{promptIcon}</Text>
+                    <Text style={{ fontSize: Typography.base, color: c.textPrimary, fontWeight: "500", flex: 1 }}>
+                      {promptText}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={18} color={c.textMuted} />
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
         ) : (
@@ -389,6 +407,36 @@ export default function ChatScreen() {
             backgroundColor: c.bg,
           }}
         >
+          {(voice.isRecording || voice.isTranscribing) && (
+            <View
+              style={{
+                marginBottom: 8,
+                alignSelf: "flex-start",
+                flexDirection: "row",
+                alignItems: "center",
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 999,
+                backgroundColor: voice.isRecording
+                  ? (isDark ? "rgba(248,113,113,0.15)" : "rgba(226,75,74,0.08)")
+                  : (isDark ? "rgba(255,255,255,0.05)" : "rgba(26,39,68,0.05)"),
+              }}
+            >
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  backgroundColor: voice.isRecording ? c.danger : c.textSecondary,
+                  marginRight: 8,
+                }}
+              />
+              <Text style={{ fontSize: Typography.sm, color: c.textPrimary, fontWeight: "500" }}>
+                {voice.isRecording ? t("chat.listening") : t("chat.transcribing")}
+              </Text>
+            </View>
+          )}
+
           {pendingImage && (
             <View style={{ marginBottom: 8, alignSelf: "flex-start", position: "relative" }}>
               <Image
@@ -436,7 +484,7 @@ export default function ChatScreen() {
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: 18,
-                backgroundColor: isDark ? "rgba(58,81,160,0.15)" : "rgba(26,39,68,0.06)",
+                backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(26,39,68,0.06)",
                 marginBottom: 2,
               }}
               hitSlop={8}
@@ -447,7 +495,7 @@ export default function ChatScreen() {
             <TextInput
               value={inputText}
               onChangeText={setInputText}
-              placeholder={pendingImage ? "Add a prompt for this image..." : "Type your message..."}
+              placeholder={pendingImage ? t("chat.placeholderImage") : t("chat.placeholder")}
               placeholderTextColor={c.textMuted}
               style={{
                 flex: 1,
@@ -461,6 +509,36 @@ export default function ChatScreen() {
               onSubmitEditing={handleSend}
               blurOnSubmit={false}
             />
+
+            <Pressable
+              onPress={handleMicPress}
+              disabled={voice.isTranscribing}
+              style={{
+                width: 36,
+                height: 36,
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 18,
+                backgroundColor: voice.isRecording
+                  ? c.danger
+                  : isDark
+                  ? "rgba(255,255,255,0.08)"
+                  : "rgba(26,39,68,0.06)",
+                marginBottom: 2,
+                marginRight: 4,
+              }}
+              hitSlop={8}
+            >
+              {voice.isTranscribing ? (
+                <ActivityIndicator size="small" color={c.navy} />
+              ) : (
+                <Ionicons
+                  name={voice.isRecording ? "stop" : "mic"}
+                  size={18}
+                  color={voice.isRecording ? "#FFFFFF" : c.navy}
+                />
+              )}
+            </Pressable>
 
             <Pressable
               onPress={handleSend}

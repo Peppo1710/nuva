@@ -5,11 +5,13 @@ import { useColorScheme } from "nativewind";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { Colors } from "@/constants/colors";
 import { Typography, R } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const t = useT();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
@@ -32,7 +34,7 @@ export default function WelcomeScreen() {
           </View>
 
           <Text style={{ fontSize: Typography.xxl, fontWeight: "700", color: c.textPrimary, marginBottom: 12 }}>
-            Nuva
+            {t("onboarding.appName")}
           </Text>
 
           <Text
@@ -43,13 +45,13 @@ export default function WelcomeScreen() {
               lineHeight: 28,
             }}
           >
-            Your AI-powered medication{"\n"}& health companion
+            {t("onboarding.tagline")}
           </Text>
         </View>
 
         <View style={{ width: "100%", paddingHorizontal: 8 }}>
           <NeoButton
-            title="Get Started"
+            title={t("onboarding.getStarted")}
             onPress={() => router.push("/onboarding/name")}
           />
         </View>

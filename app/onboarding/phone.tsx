@@ -15,10 +15,12 @@ import { NeoInput } from "@/components/ui/NeoInput";
 import { NeoCard } from "@/components/ui/NeoCard";
 import { Colors } from "@/constants/colors";
 import { Typography } from "@/constants/typography";
+import { useT } from "@/lib/useT";
 
 export default function PhoneScreen() {
   const { colorScheme } = useColorScheme();
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
+  const t = useT();
   const [countryCode, setCountryCode] = useState("+91");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export default function PhoneScreen() {
     setError(null);
 
     if (phoneNumber.length < 10) {
-      setError("Please enter a valid phone number");
+      setError(t("common.error"));
       return;
     }
 
@@ -61,19 +63,18 @@ export default function PhoneScreen() {
           <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 64, paddingBottom: 32, justifyContent: "space-between" }}>
             <View>
               <Text style={{ fontSize: 32, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
-                Nuva
+                {t("onboarding.appName")}
               </Text>
               <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 48 }}>
-                Your health companion
+                {t("chat.subtitle")}
               </Text>
 
               <NeoCard style={{ marginBottom: 32 }}>
                 <Text style={{ fontSize: Typography.xl, fontWeight: "700", color: c.textPrimary, marginBottom: 8 }}>
-                  Welcome!
+                  {t("onboarding.phoneTitle")}
                 </Text>
                 <Text style={{ fontSize: Typography.base, color: c.textSecondary, marginBottom: 24 }}>
-                  Enter your phone number to get started. We'll send you a
-                  verification code.
+                  {t("onboarding.phoneBody")}
                 </Text>
 
                 <View style={{ flexDirection: "row", gap: 16, marginBottom: 24, width: "100%" }}>
@@ -91,7 +92,7 @@ export default function PhoneScreen() {
                       setPhoneNumber(text.replace(/[^0-9]/g, ""));
                       setError(null);
                     }}
-                    placeholder="Phone number"
+                    placeholder={t("onboarding.phonePlaceholder")}
                     keyboardType="phone-pad"
                     containerClassName="flex-[0.75]"
                     maxLength={10}
@@ -108,7 +109,7 @@ export default function PhoneScreen() {
             </View>
 
             <NeoButton
-              title="Send Verification Code"
+              title={t("onboarding.sendCode")}
               onPress={handleSendOtp}
               loading={loading}
               disabled={phoneNumber.length < 10}

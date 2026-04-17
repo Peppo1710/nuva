@@ -44,4 +44,4 @@ backend/dist/
 # generated native folders
 /ios
 /android
- .env*
+ .env*.expo-test-export/
