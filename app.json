@@ -35,7 +35,8 @@
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.SCHEDULE_EXACT_ALARM",
         "android.permission.POST_NOTIFICATIONS",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ]
     },
     "web": {
@@ -74,9 +75,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "09340ec3-c54f-4bf5-b68f-c17815ae203f"
+        "projectId": "84e1fa70-f362-4c84-8df6-015f9cacb5c6"
       }
     },
-    "owner": "pradyumn1710s-organization"
+    "owner": "prad1710s-organization"
   }
 }
