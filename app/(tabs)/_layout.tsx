@@ -93,14 +93,13 @@ export default function TabLayout() {
         tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
           height: 60 + insets.bottom,
-          borderTopWidth: 1,
-          borderTopColor: isDark ? "#1A1A1A" : c.border,
+          borderTopWidth: 0,
           backgroundColor: isDark ? "#080808" : c.surface,
           elevation: 0,
           shadowColor: "#000",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: isDark ? 0.4 : 0.06,
-          shadowRadius: 12,
+          shadowOffset: { width: 0, height: -1 },
+          shadowOpacity: isDark ? 0.5 : 0.08,
+          shadowRadius: 8,
         },
         tabBarIconStyle: {
           marginTop: 4,
