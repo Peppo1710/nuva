@@ -50,9 +50,8 @@ function formatDose(amount: number, unit: string): string {
   return `${qty} ${unit}${amount !== 1 ? "s" : ""}`;
 }
 
-function ThemeToggle() {
+function ThemeToggle({ isDark }: { isDark: boolean }) {
   const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === "dark";
   const { setTheme } = useProfileStore();
   const thumbAnim = useRef(new Animated.Value(isDark ? 22 : 0)).current;
 
@@ -79,17 +78,17 @@ function ThemeToggle() {
         width: 48,
         borderRadius: 999,
         backgroundColor: isDark
-          ? "rgba(61,214,163,0.6)"
+          ? "rgba(0,0,0,0.25)"
           : "rgba(255,255,255,0.2)",
         paddingHorizontal: 3,
         justifyContent: "center",
       }}
       hitSlop={8}
     >
-      <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", position: "absolute", left: 5 }}>
+      <Text style={{ fontSize: 11, color: isDark ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)", position: "absolute", left: 5 }}>
         ☀
       </Text>
-      <Text style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", position: "absolute", right: 5 }}>
+      <Text style={{ fontSize: 11, color: isDark ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)", position: "absolute", right: 5 }}>
         ☾
       </Text>
       <Animated.View
@@ -338,7 +337,7 @@ export default function HomeScreen() {
             style={{
               fontSize: Typography.md,
               fontWeight: "600",
-              color: Colors.light.textOnNavy,
+              color: c.textOnNavy,
             }}
           >
             {t(getGreetingKey())}, {username || t("home.friend")}
@@ -346,14 +345,14 @@ export default function HomeScreen() {
           <Text
             style={{
               fontSize: 13,
-              color: "rgba(255,255,255,0.55)",
+              color: isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.55)",
               marginTop: 2,
             }}
           >
             {getFormattedDate(language)}
           </Text>
         </View>
-        <ThemeToggle />
+        <ThemeToggle isDark={isDark} />
       </View>
     </View>
   );

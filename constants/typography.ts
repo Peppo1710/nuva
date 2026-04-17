@@ -9,11 +9,11 @@ export const Typography = {
 } as const;
 
 export const Fonts = {
-  regular:   "Inter_400Regular",
-  medium:    "Inter_500Medium",
-  semibold:  "Inter_600SemiBold",
-  bold:      "Inter_700Bold",
-  extrabold: "Inter_800ExtraBold",
+  regular:   "Poppins_400Regular",
+  medium:    "Poppins_500Medium",
+  semibold:  "Poppins_600SemiBold",
+  bold:      "Poppins_700Bold",
+  extrabold: "Poppins_800ExtraBold",
 } as const;
 
 export const fontForWeight = (weight?: string | number): string => {

@@ -16,7 +16,7 @@ import { Colors } from "@/constants/colors";
 import { Typography, R } from "@/constants/typography";
 import { useT } from "@/lib/useT";
 
-const MIN_AGE = 40;
+const MIN_AGE = 10;
 const MAX_AGE = 100;
 const AGES = Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => MIN_AGE + i);
 const ITEM_HEIGHT = 64;
@@ -28,7 +28,7 @@ export default function AgeScreen() {
   const c = colorScheme === "dark" ? Colors.dark : Colors.light;
   const t = useT();
   const { age, setProfile } = useProfileStore();
-  const [selectedAge, setSelectedAge] = useState(age ?? 65);
+  const [selectedAge, setSelectedAge] = useState(age ?? 25);
   const flatListRef = useRef<FlatList>(null);
   const hasScrolledInitial = useRef(false);
 

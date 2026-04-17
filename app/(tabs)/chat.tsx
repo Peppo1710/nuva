@@ -10,7 +10,7 @@ import {
   Alert,
   Image,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useRef, useCallback } from "react";
 import { useColorScheme } from "nativewind";
@@ -44,6 +44,9 @@ export default function ChatScreen() {
   const t = useT();
   const language = useProfileStore((s) => s.language);
   const voice = useVoiceInput();
+  const insets = useSafeAreaInsets();
+  // Tab bar height declared in _layout.tsx is 60 + insets.bottom
+  const TAB_BAR_HEIGHT = 60 + insets.bottom;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
@@ -301,9 +304,9 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={["top"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
         style={{ flex: 1 }}
-        keyboardVerticalOffset={0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? TAB_BAR_HEIGHT : 0}
       >
         {/* Header */}
         <View
@@ -401,7 +404,8 @@ export default function ChatScreen() {
         <View
           style={{
             paddingHorizontal: S.base,
-            paddingVertical: 12,
+            paddingTop: 12,
+            paddingBottom: 12 + insets.bottom,
             borderTopWidth: 0.5,
             borderTopColor: c.border,
             backgroundColor: c.bg,

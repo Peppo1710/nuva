@@ -126,18 +126,38 @@ function SidebarProvider({
     [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
   )
 
+  const wrapperStyle = React.useMemo(() => {
+    const cssVars = {
+      '--sidebar-width': SIDEBAR_WIDTH,
+      '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
+    } as React.CSSProperties
+
+    // Guard against accidental array style values being passed in.
+    // Spreading an array into an object creates numeric keys (0, 1, ...),
+    // which crashes react-dom when applying CSSStyleDeclaration properties.
+    if (Array.isArray(style)) {
+      const merged = style.reduce<React.CSSProperties>((acc, item) => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+          return { ...acc, ...(item as React.CSSProperties) }
+        }
+        return acc
+      }, {})
+      return { ...cssVars, ...merged }
+    }
+
+    if (style && typeof style === 'object') {
+      return { ...cssVars, ...(style as React.CSSProperties) }
+    }
+
+    return cssVars
+  }, [style])
+
   return (
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
-          style={
-            {
-              '--sidebar-width': SIDEBAR_WIDTH,
-              '--sidebar-width-icon': SIDEBAR_WIDTH_ICON,
-              ...style,
-            } as React.CSSProperties
-          }
+          style={wrapperStyle}
           className={cn(
             'group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full',
             className,
