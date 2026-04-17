@@ -12,54 +12,60 @@ function TabIcon({
   focused,
   activeColor,
   inactiveColor,
+  isDark,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   focused: boolean;
   activeColor: string;
   inactiveColor: string;
+  isDark: boolean;
 }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const dotScale = useRef(new Animated.Value(focused ? 1 : 0)).current;
+  const bgAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
 
   useEffect(() => {
-    if (focused) {
+    Animated.parallel([
       Animated.spring(scaleAnim, {
-        toValue: 1,
+        toValue: focused ? 1.1 : 1,
         stiffness: 300,
-        damping: 14,
+        damping: 18,
         useNativeDriver: true,
-      }).start();
-      Animated.spring(dotScale, {
-        toValue: 1,
-        stiffness: 300,
-        damping: 14,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      dotScale.setValue(0);
-    }
+      }),
+      Animated.timing(bgAnim, {
+        toValue: focused ? 1 : 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start();
   }, [focused]);
 
+  const pillBg = bgAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [
+      "rgba(0,0,0,0)",
+      isDark ? "rgba(61,214,163,0.12)" : "rgba(26,39,68,0.08)",
+    ],
+  });
+
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", paddingTop: 6 }}>
+    <Animated.View
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: pillBg,
+      }}
+    >
       <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
         <Ionicons
           name={icon}
-          size={24}
+          size={22}
           color={focused ? activeColor : inactiveColor}
         />
       </Animated.View>
-      <Animated.View
-        style={{
-          width: 4,
-          height: 4,
-          borderRadius: 2,
-          backgroundColor: activeColor,
-          marginTop: 4,
-          transform: [{ scale: dotScale }],
-        }}
-      />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -68,8 +74,8 @@ export default function TabLayout() {
   const isDark = colorScheme === "dark";
   const c = isDark ? Colors.dark : Colors.light;
   const insets = useSafeAreaInsets();
-  const activeColor = isDark ? c.violet : c.navy;
-  const inactiveColor = c.textMuted;
+  const activeColor = isDark ? "#3DD6A3" : c.navy;
+  const inactiveColor = isDark ? "rgba(255,255,255,0.3)" : c.textMuted;
   const t = useT();
 
   return (
@@ -79,19 +85,23 @@ export default function TabLayout() {
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontSize: 10,
-          fontWeight: "500",
-          marginBottom: 2,
+          fontWeight: "600",
+          marginBottom: 4,
+          letterSpacing: 0.2,
         },
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          height: 60 + insets.bottom,
-          borderTopWidth: 0.5,
-          borderTopColor: c.border,
-          backgroundColor: c.surface,
+          height: 64 + insets.bottom,
+          borderTopWidth: 1,
+          borderTopColor: isDark ? "#1A1A1A" : c.border,
+          backgroundColor: isDark ? "#080808" : c.surface,
           elevation: 0,
-          shadowOpacity: 0,
-          paddingTop: 2,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: isDark ? 0.4 : 0.06,
+          shadowRadius: 12,
+          paddingTop: 4,
         },
       }}
     >
@@ -105,6 +115,7 @@ export default function TabLayout() {
               focused={focused}
               activeColor={activeColor}
               inactiveColor={inactiveColor}
+              isDark={isDark}
             />
           ),
         }}
@@ -119,6 +130,7 @@ export default function TabLayout() {
               focused={focused}
               activeColor={activeColor}
               inactiveColor={inactiveColor}
+              isDark={isDark}
             />
           ),
         }}
@@ -133,6 +145,7 @@ export default function TabLayout() {
               focused={focused}
               activeColor={activeColor}
               inactiveColor={inactiveColor}
+              isDark={isDark}
             />
           ),
         }}
@@ -147,6 +160,7 @@ export default function TabLayout() {
               focused={focused}
               activeColor={activeColor}
               inactiveColor={inactiveColor}
+              isDark={isDark}
             />
           ),
         }}
@@ -161,6 +175,7 @@ export default function TabLayout() {
               focused={focused}
               activeColor={activeColor}
               inactiveColor={inactiveColor}
+              isDark={isDark}
             />
           ),
         }}
