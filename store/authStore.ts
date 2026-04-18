@@ -20,12 +20,17 @@ interface AuthState {
   setSession: (session: Session | null) => void;
 }
 
+function phoneToUUID(phone: string): string {
+  const digits = phone.replace(/\D/g, "").slice(-12).padStart(12, "0");
+  return `00000000-0000-4000-a000-${digits}`;
+}
+
 function createMockSession(phone: string): {
   session: Session;
   user: User;
 } {
   const mockUser = {
-    id: "dev-" + phone.replace(/[^0-9]/g, ""),
+    id: phoneToUUID(phone),
     aud: "authenticated",
     role: "authenticated",
     email: "",

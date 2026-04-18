@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import { supabase } from "@/lib/supabase";
-import { DEV_BYPASS_AUTH } from "@/lib/devConfig";
 import { useAuthStore } from "./authStore";
 import api from "@/lib/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -67,27 +65,6 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
 
   fetchProfile: async () => {
     set({ loading: true });
-
-    const authState = useAuthStore.getState();
-    if (DEV_BYPASS_AUTH && authState.isDevSession) {
-      const saved = await AsyncStorage.getItem("dev_profile");
-      if (saved) {
-        const p = JSON.parse(saved);
-        set({
-          id: authState.user?.id,
-          phone: authState.user?.phone,
-          username: p.username,
-          age: p.age,
-          primaryGoal: p.primaryGoal,
-          onboardingComplete: !!p.username,
-          loading: false,
-        });
-      } else {
-        set({ loading: false });
-      }
-      return;
-    }
-
     try {
       const { data } = await api.get("/user/profile");
       const profile = data.profile;
@@ -105,7 +82,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
           city: profile.city,
           emergency_contact_name: profile.emergency_contact_name,
           emergency_contact_phone: profile.emergency_contact_phone,
-          theme_preference: profile.theme_preference || "light",
+          theme_preference: profile.theme_preference || "dark",
           avatar_url: profile.avatar_url,
           language: (profile.language as AppLanguage) || "en",
           onboardingComplete: !!profile.username,
@@ -168,85 +145,29 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     const { username, age, primaryGoal } = get();
     set({ loading: true });
 
-    const authState = useAuthStore.getState();
-    if (DEV_BYPASS_AUTH && authState.isDevSession) {
-      await AsyncStorage.setItem("dev_onboarding_complete", "true");
-      await AsyncStorage.setItem(
-        "dev_profile",
-        JSON.stringify({ username, age, primaryGoal })
-      );
-      set({ onboardingComplete: true, loading: false });
-      return { error: null };
-    }
+    const phone = useAuthStore.getState().user?.phone || "";
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        set({ loading: false });
-        return { error: "Not authenticated. Please sign in again." };
-      }
-
-      const { error } = await supabase.from("users").upsert(
-        {
-          id: user.id,
-          phone: user.phone,
-          username,
-          age,
-          primary_goal: primaryGoal,
-          theme_preference: "light",
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "id" }
-      );
-
-      if (error) {
-        set({ loading: false });
-        return { error: "Could not save your information. Please try again." };
-      }
-
+      await api.put("/user/profile", {
+        username,
+        age,
+        primary_goal: primaryGoal,
+        phone,
+      });
       set({ onboardingComplete: true, loading: false });
       return { error: null };
     } catch {
       set({ loading: false });
-      return { error: "Something went wrong. Please try again." };
+      return { error: "Could not save your information. Please try again." };
     }
   },
 
   checkOnboardingStatus: async () => {
-    const authState = useAuthStore.getState();
-    if (DEV_BYPASS_AUTH && authState.isDevSession) {
-      const saved = await AsyncStorage.getItem("dev_onboarding_complete");
-      if (saved === "true") {
-        set({ onboardingComplete: true });
-        return true;
-      }
-      set({ onboardingComplete: false });
-      return false;
-    }
-
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) return false;
-
-      const { data, error } = await supabase
-        .from("users")
-        .select("username")
-        .eq("id", user.id)
-        .single();
-
-      if (error || !data?.username) {
-        set({ onboardingComplete: false });
-        return false;
-      }
-
-      set({ onboardingComplete: true });
-      return true;
+      const { data } = await api.get("/user/profile");
+      const complete = !!data.profile?.username;
+      set({ onboardingComplete: complete });
+      return complete;
     } catch {
       set({ onboardingComplete: false });
       return false;

@@ -43,8 +43,10 @@ router.put(
   authenticate,
   async (req: AuthenticatedRequest, res: Response) => {
     const {
+      phone,
       username,
       age,
+      primary_goal,
       gender,
       blood_group,
       weight_kg,
@@ -58,32 +60,52 @@ router.put(
     } = req.body;
 
     try {
-      const updateData: Record<string, unknown> = {
+      const fields: Record<string, unknown> = {
         updated_at: new Date().toISOString(),
       };
 
-      if (username !== undefined) updateData.username = username;
-      if (age !== undefined) updateData.age = age;
-      if (gender !== undefined) updateData.gender = gender;
-      if (blood_group !== undefined) updateData.blood_group = blood_group;
-      if (weight_kg !== undefined) updateData.weight_kg = weight_kg;
-      if (height_cm !== undefined) updateData.height_cm = height_cm;
-      if (city !== undefined) updateData.city = city;
+      if (username !== undefined) fields.username = username;
+      if (age !== undefined) fields.age = age;
+      if (primary_goal !== undefined) fields.primary_goal = primary_goal;
+      if (gender !== undefined) fields.gender = gender;
+      if (blood_group !== undefined) fields.blood_group = blood_group;
+      if (weight_kg !== undefined) fields.weight_kg = weight_kg;
+      if (height_cm !== undefined) fields.height_cm = height_cm;
+      if (city !== undefined) fields.city = city;
       if (emergency_contact_name !== undefined)
-        updateData.emergency_contact_name = emergency_contact_name;
+        fields.emergency_contact_name = emergency_contact_name;
       if (emergency_contact_phone !== undefined)
-        updateData.emergency_contact_phone = emergency_contact_phone;
+        fields.emergency_contact_phone = emergency_contact_phone;
       if (theme_preference !== undefined)
-        updateData.theme_preference = theme_preference;
-      if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
-      if (language !== undefined) updateData.language = language;
+        fields.theme_preference = theme_preference;
+      if (avatar_url !== undefined) fields.avatar_url = avatar_url;
+      if (language !== undefined) fields.language = language;
 
-      const { data, error } = await supabaseAdmin
+      // Check if user already exists
+      const { data: existing } = await supabaseAdmin
         .from("users")
-        .update(updateData)
+        .select("id")
         .eq("id", req.userId)
-        .select()
-        .single();
+        .maybeSingle();
+
+      let data, error;
+
+      if (!existing) {
+        // First-time creation — phone is required
+        const userPhone = phone || `+0${req.userId!.replace(/-/g, "").slice(-10)}`;
+        ({ data, error } = await supabaseAdmin
+          .from("users")
+          .insert({ id: req.userId, phone: userPhone, ...fields })
+          .select()
+          .single());
+      } else {
+        ({ data, error } = await supabaseAdmin
+          .from("users")
+          .update(fields)
+          .eq("id", req.userId)
+          .select()
+          .single());
+      }
 
       if (error) {
         res

@@ -1,9 +1,7 @@
 import axios from "axios";
 import { Platform } from "react-native";
 import { useUIStore } from "@/store/uiStore";
-
-// Fixed dev UUID sent on every request (must be valid UUID for Supabase columns)
-const DEV_USER_ID = "00000000-0000-0000-0000-000000000001";
+import { useAuthStore } from "@/store/authStore";
 
 const getBaseUrl = () => {
   if (process.env.EXPO_PUBLIC_API_BASE_URL) {
@@ -27,8 +25,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // Dummy auth: send a fixed user ID header instead of a real Bearer token
-    config.headers["x-user-id"] = DEV_USER_ID;
+    const userId = useAuthStore.getState().user?.id;
+    if (userId) config.headers["x-user-id"] = userId;
     return config;
   },
   (error) => Promise.reject(error)

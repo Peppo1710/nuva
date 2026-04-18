@@ -12,20 +12,22 @@ export interface AuthenticatedRequest extends Request {
   userEmail?: string;
 }
 
-const DEV_USER_UUID = "00000000-0000-0000-0000-000000000001";
-
 /**
- * Dummy authentication middleware.
- * No token validation — reads `x-user-id` header or falls back to a fixed dev UUID.
- * All requests are allowed through.
+ * Authentication middleware.
+ * Reads the `x-user-id` header sent by the frontend.
+ * Returns 401 if no user ID is provided.
  */
 export async function authenticate(
   req: AuthenticatedRequest,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ): Promise<void> {
-  const userId = (req.headers["x-user-id"] as string) || DEV_USER_UUID;
+  const userId = req.headers["x-user-id"] as string | undefined;
+  if (!userId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
   req.userId = userId;
-  req.userEmail = `dev@nuva.local`;
+  req.userEmail = `user@nuva.local`;
   next();
 }
