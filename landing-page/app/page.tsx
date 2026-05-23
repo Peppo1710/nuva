@@ -107,7 +107,7 @@ function HeroSection() {
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
             <button className="bg-[#1D9E75] text-white px-4 py-2 rounded-md">
-            <a href={process.env.NEXT_PUBLIC_APP_STORE_URL || "#"} className="inline-flex items-center text-white gap-2 text-lg font-medium text-[#1D9E75] hover:underline">
+            <a href="https://github.com/Peppo1710/nuva/releases/download/kv-3/Nuva-apk.apk" className="inline-flex items-center text-white gap-2 text-lg font-medium text-[#1D9E75] hover:underline">
 
                       Download Your App Now
             </a>
