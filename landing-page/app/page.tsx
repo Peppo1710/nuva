@@ -50,19 +50,17 @@ function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <a href="#" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1D9E75]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2563EB]">
             <Heart className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold text-[#1A2744]">Nuva</span>
         </a>
         <nav className="hidden items-center gap-6 md:flex">
-          <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#1D9E75]">Features</a>
-          <a href="#how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#1D9E75]">How It Works</a>
-          <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#1D9E75]">FAQ</a>
-          {/* <a href={process.env.NEXT_PUBLIC_APP_STORE_URL || "#"} className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#1D9E75]">App Store</a>
-          <a href={process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#"} className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#1D9E75]">Google Play</a> */}
+          <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#2563EB]">Features</a>
+          <a href="#how-it-works" className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#2563EB]">How It Works</a>
+          <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-[#2563EB]">FAQ</a>
         </nav>
-        <button 
+        <button
           className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -76,8 +74,6 @@ function Header() {
             <a href="#features" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>Features</a>
             <a href="#how-it-works" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
-            {/* <a href={process.env.NEXT_PUBLIC_APP_STORE_URL || "#"} className="text-sm font-medium text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>App Store</a>
-            <a href={process.env.NEXT_PUBLIC_PLAY_STORE_URL || "#"} className="text-sm font-medium text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>Google Play</a> */}
           </nav>
         </div>
       )}
@@ -88,14 +84,13 @@ function Header() {
 function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-background to-muted/30 py-16 md:py-24 lg:py-32">
-      {/* Decorative background elements */}
-      <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#1D9E75]/10 blur-3xl" />
-      <div className="absolute -right-20 top-40 h-96 w-96 rounded-full bg-[#534AB7]/10 blur-3xl" />
-      
+      <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#2563EB]/10 blur-3xl" />
+      <div className="absolute -right-20 top-40 h-96 w-96 rounded-full bg-[#1E40AF]/10 blur-3xl" />
+
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#1D9E75]/10 px-4 py-2 text-sm font-medium text-[#1D9E75]">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#2563EB]/10 px-4 py-2 text-sm font-medium text-[#2563EB]">
               <Sparkles className="h-4 w-4" />
               AI-Powered Health Companion
             </div>
@@ -106,16 +101,14 @@ function HeroSection() {
               Nuva is your AI-powered health companion — built for simplicity, designed with care. Manage medications, scan prescriptions, and get personalized health guidance, all in one app.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <button className="bg-[#1D9E75] text-white px-4 py-2 rounded-md">
-            <a href="" className="inline-flex items-center text-white gap-2 text-lg font-medium text-[#1D9E75] hover:underline">
-
-                      Download Your App Now
-            </a>
-
-            </button>
+              <button className="bg-[#2563EB] text-white px-4 py-2 rounded-md">
+                <a href="" className="inline-flex items-center text-white gap-2 text-lg font-medium hover:underline">
+                  Download Your App Now
+                </a>
+              </button>
             </div>
           </div>
-          
+
           <div className="flex justify-center lg:justify-end">
             <PhoneMockup className="w-[280px] md:w-[320px]">
               <div className="h-[560px] bg-gradient-to-b from-[#F8FAFB] to-white p-6 md:h-[640px]">
@@ -124,12 +117,12 @@ function HeroSection() {
                     <p className="text-sm text-muted-foreground">Good Morning</p>
                     <p className="text-xl font-semibold text-[#1A2744]">Kshipra</p>
                   </div>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1D9E75]/10">
-                    <Bell className="h-5 w-5 text-[#1D9E75]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]/10">
+                    <Bell className="h-5 w-5 text-[#2563EB]" />
                   </div>
                 </div>
-                
-                <Card className="mb-4 border-none bg-gradient-to-r from-[#1D9E75] to-[#1D9E75]/80 shadow-lg">
+
+                <Card className="mb-4 border-none bg-gradient-to-r from-[#2563EB] to-[#2563EB]/80 shadow-lg">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
@@ -142,7 +135,7 @@ function HeroSection() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <div className="mb-4">
                   <p className="mb-3 text-sm font-medium text-[#1A2744]">{"Today's Medications"}</p>
                   <div className="space-y-3">
@@ -154,22 +147,22 @@ function HeroSection() {
                       <Card key={i} className="border border-border/50 shadow-sm">
                         <CardContent className="flex items-center justify-between p-3">
                           <div className="flex items-center gap-3">
-                            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${med.taken ? 'bg-[#1D9E75]/10' : 'bg-[#534AB7]/10'}`}>
-                              {med.taken ? <Check className="h-5 w-5 text-[#1D9E75]" /> : <Heart className="h-5 w-5 text-[#534AB7]" />}
+                            <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${med.taken ? 'bg-[#2563EB]/10' : 'bg-[#1E40AF]/10'}`}>
+                              {med.taken ? <Check className="h-5 w-5 text-[#2563EB]" /> : <Heart className="h-5 w-5 text-[#1E40AF]" />}
                             </div>
                             <div>
                               <p className="font-medium text-[#1A2744]">{med.name}</p>
                               <p className="text-xs text-muted-foreground">{med.dose} • {med.time}</p>
                             </div>
                           </div>
-                          {med.taken && <span className="text-xs font-medium text-[#1D9E75]">Taken</span>}
+                          {med.taken && <span className="text-xs font-medium text-[#2563EB]">Taken</span>}
                         </CardContent>
                       </Card>
                     ))}
                   </div>
                 </div>
-                
-                <Button className="w-full gap-2 bg-[#534AB7] text-white hover:bg-[#534AB7]/90">
+
+                <Button className="w-full gap-2 bg-[#1E40AF] text-white hover:bg-[#1E40AF]/90">
                   <Camera className="h-4 w-4" />
                   Scan Prescription
                 </Button>
@@ -213,8 +206,8 @@ function ProblemSection() {
           {problems.map((problem, i) => (
             <Card key={i} className="border-none bg-card shadow-lg shadow-black/5">
               <CardContent className="p-6">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#534AB7]/10">
-                  <problem.icon className="h-7 w-7 text-[#534AB7]" />
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1E40AF]/10">
+                  <problem.icon className="h-7 w-7 text-[#1E40AF]" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-[#1A2744]">{problem.title}</h3>
                 <p className="text-muted-foreground">{problem.description}</p>
@@ -239,7 +232,6 @@ function FeaturesSection() {
       title: "AI Prescription Scanner",
       description: "Snap a photo of your prescription. Nuva's AI instantly extracts drug names, dosages, frequency, and instructions — in plain language."
     },
-    
     {
       icon: MessageCircle,
       title: "AI Health Chat",
@@ -272,8 +264,8 @@ function FeaturesSection() {
           {features.map((feature, i) => (
             <Card key={i} className="group border-none bg-card shadow-lg shadow-black/5 transition-all hover:shadow-xl">
               <CardContent className="p-6">
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1D9E75]/10 transition-colors group-hover:bg-[#1D9E75]/20">
-                  <feature.icon className="h-7 w-7 text-[#1D9E75]" />
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#2563EB]/10 transition-colors group-hover:bg-[#2563EB]/20">
+                  <feature.icon className="h-7 w-7 text-[#2563EB]" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-[#1A2744]">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
@@ -314,13 +306,12 @@ function HowItWorksSection() {
           </h2>
         </div>
         <div className="relative">
-          {/* Connection line */}
-          <div className="absolute left-1/2 top-8 hidden h-0.5 w-2/3 -translate-x-1/2 bg-gradient-to-r from-[#1D9E75]/20 via-[#1D9E75] to-[#1D9E75]/20 md:block" />
-          
+          <div className="absolute left-1/2 top-8 hidden h-0.5 w-2/3 -translate-x-1/2 bg-gradient-to-r from-[#2563EB]/20 via-[#2563EB] to-[#2563EB]/20 md:block" />
+
           <div className="grid gap-8 md:grid-cols-3">
             {steps.map((step, i) => (
               <div key={i} className="relative flex flex-col items-center text-center">
-                <div className="relative z-10 mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#1D9E75] text-2xl font-bold text-white shadow-lg shadow-[#1D9E75]/30">
+                <div className="relative z-10 mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#2563EB] text-2xl font-bold text-white shadow-lg shadow-[#2563EB]/30">
                   {step.number}
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-[#1A2744]">{step.title}</h3>
@@ -343,7 +334,7 @@ function AIShowcaseSection() {
             <PhoneMockup className="w-[260px] md:w-[280px]">
               <div className="h-[520px] bg-[#F8FAFB] p-4 md:h-[560px]">
                 <div className="mb-4 flex items-center gap-3 border-b border-border pb-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1D9E75]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2563EB]">
                     <Sparkles className="h-5 w-5 text-white" />
                   </div>
                   <div>
@@ -351,42 +342,42 @@ function AIShowcaseSection() {
                     <p className="text-xs text-muted-foreground">Your Health Companion</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="flex justify-end">
-                    <div className="max-w-[80%] rounded-2xl rounded-tr-md bg-[#1D9E75] p-3 text-sm text-white">
+                    <div className="max-w-[80%] rounded-2xl rounded-tr-md bg-[#2563EB] p-3 text-sm text-white">
                       Can I take ibuprofen with my current medications?
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-start">
                     <div className="max-w-[85%] rounded-2xl rounded-tl-md bg-muted p-3 text-sm text-[#1A2744]">
                       Based on your profile, I see {"you're"} taking Lisinopril for blood pressure. While occasional ibuprofen is generally okay, regular use may reduce the effectiveness of your blood pressure medication. {"I'd"} recommend using acetaminophen as an alternative. Always consult your doctor for specific advice.
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end">
-                    <div className="max-w-[80%] rounded-2xl rounded-tr-md bg-[#1D9E75] p-3 text-sm text-white">
+                    <div className="max-w-[80%] rounded-2xl rounded-tr-md bg-[#2563EB] p-3 text-sm text-white">
                       What about acetaminophen dosage?
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-start">
                     <div className="max-w-[85%] rounded-2xl rounded-tl-md bg-muted p-3 text-sm text-[#1A2744]">
                       For adults, the typical dose is 325-650mg every 4-6 hours, not exceeding 3,000mg per day. Given your medical history, this should be safe, but {"let's"} keep track of it in your medication log.
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="flex items-center gap-2 rounded-full border border-border bg-white p-2 pl-4">
-                    <input 
-                      type="text" 
-                      placeholder="Ask me anything..." 
+                    <input
+                      type="text"
+                      placeholder="Ask me anything..."
                       className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                       readOnly
                     />
-                    <Button size="sm" className="h-8 w-8 rounded-full bg-[#1D9E75] p-0">
+                    <Button size="sm" className="h-8 w-8 rounded-full bg-[#2563EB] p-0">
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
@@ -394,7 +385,7 @@ function AIShowcaseSection() {
               </div>
             </PhoneMockup>
           </div>
-          
+
           <div className="order-1 lg:order-2">
             <h2 className="mb-6 text-balance text-3xl font-bold text-white md:text-4xl">
               AI That Actually Understands You
@@ -457,8 +448,8 @@ function AccessibilitySection() {
           {features.map((feature, i) => (
             <Card key={i} className="border-none bg-gradient-to-br from-card to-muted/30 shadow-lg shadow-black/5">
               <CardContent className="p-6 text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#534AB7]/10">
-                  <feature.icon className="h-7 w-7 text-[#534AB7]" />
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1E40AF]/10">
+                  <feature.icon className="h-7 w-7 text-[#1E40AF]" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-[#1A2744]">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
@@ -479,9 +470,9 @@ function PricingSection() {
           <h2 className="mb-4 text-balance text-3xl font-bold text-[#1A2744] md:text-4xl">
             Free to Use. No Hidden Costs.
           </h2>
-          <Card className="mt-8 border-2 border-[#1D9E75] bg-card shadow-xl">
+          <Card className="mt-8 border-2 border-[#2563EB] bg-card shadow-xl">
             <CardContent className="p-8">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#1D9E75]/10 px-4 py-2 text-sm font-medium text-[#1D9E75]">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#2563EB]/10 px-4 py-2 text-sm font-medium text-[#2563EB]">
                 <Heart className="h-4 w-4" />
                 100% Free Forever
               </div>
@@ -491,7 +482,7 @@ function PricingSection() {
               <p className="mb-8 text-muted-foreground">
                 Your health data is yours. We never sell it.
               </p>
-              <Button size="lg" className="w-full bg-[#1D9E75] text-lg text-white hover:bg-[#1D9E75]/90 sm:w-auto">
+              <Button size="lg" className="w-full bg-[#2563EB] text-lg text-white hover:bg-[#2563EB]/90 sm:w-auto">
                 Get Started for Free
               </Button>
             </CardContent>
@@ -542,7 +533,7 @@ function FAQSection() {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="border-b border-border">
-                <AccordionTrigger className="py-4 text-left text-lg font-medium text-[#1A2744] hover:text-[#1D9E75] hover:no-underline">
+                <AccordionTrigger className="py-4 text-left text-lg font-medium text-[#1A2744] hover:text-[#2563EB] hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
                 <AccordionContent className="pb-4 text-muted-foreground">
@@ -559,7 +550,7 @@ function FAQSection() {
 
 function FinalCTASection() {
   return (
-    <section className="bg-gradient-to-br from-[#1A2744] via-[#1A2744] to-[#1D9E75]/30 py-16 md:py-24">
+    <section className="bg-gradient-to-br from-[#1A2744] via-[#1A2744] to-[#2563EB]/30 py-16 md:py-24">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="mb-4 text-balance text-3xl font-bold text-white md:text-4xl lg:text-5xl">
@@ -574,39 +565,6 @@ function FinalCTASection() {
     </section>
   )
 }
-
-// function Footer() {
-//   return (
-//     <footer className="border-t border-border bg-[#1A2744] py-12">
-//       <div className="container mx-auto px-4 md:px-6">
-//         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-//           <div className="flex items-center gap-2">
-//             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1D9E75]">
-//               <Heart className="h-5 w-5 text-white" />
-//             </div>
-//             <span className="text-xl font-bold text-white">Nuva</span>
-//           </div>
-          
-//           <nav className="flex flex-wrap justify-center gap-6">
-//             <a href="#" className="text-sm text-white/70 transition-colors hover:text-white">Privacy Policy</a>
-//             <a href="#" className="text-sm text-white/70 transition-colors hover:text-white">Terms of Service</a>
-//             <a href="#" className="text-sm text-white/70 transition-colors hover:text-white">Contact Us</a>
-//             <a href="#" className="text-sm text-white/70 transition-colors hover:text-white">Support</a>
-//           </nav>
-//         </div>
-        
-//         <div className="mt-8 border-t border-white/10 pt-8 text-center">
-//           <p className="text-sm text-white/60">
-//             © 2026 Nuva. Made with care for healthier lives.
-//           </p>
-//           <p className="mt-2 text-xs text-white/40">
-//             Nuva is not a medical device and does not provide medical diagnoses. Always consult a qualified healthcare professional.
-//           </p>
-//         </div>
-//       </div>
-//     </footer>
-//   )
-// }
 
 export default function NuvaLandingPage() {
   return (
@@ -623,7 +581,6 @@ export default function NuvaLandingPage() {
         <FAQSection />
         <FinalCTASection />
       </main>
-      {/* <Footer /> */}
     </div>
   )
 }
